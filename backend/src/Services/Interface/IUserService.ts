@@ -1,4 +1,5 @@
 import { IDoctor } from "../../Models/doctorModel";
+import { ISpeciality } from "../../Models/specialisationModel";
 import { IUser } from "../../Models/userModel";
 import {
   ILoginType,
@@ -25,7 +26,7 @@ export interface IUserService {
     role?: string;
     message?: string;
   }>;
-  getAllUsers(): Promise<IUser[]>;
+  getAllUsers(search:string,page:number,limit:number): Promise<{users:IUser[];totalPages:number;currentPage:number}>;
   findByEmail(email: string): Promise<IUser | null>;
   createUser(userData: googleUserInput): Promise<IUser>;
   getUserById(userId: string): Promise<IUser | null>;
@@ -33,4 +34,5 @@ export interface IUserService {
   unblockUser(userId: string): Promise<void>;
   // refreshToken():Promise<string>
   findDoctor(): Promise<IDoctor[]>;
+  fetchSpecialization():Promise<ISpeciality[]>
 }

@@ -7,7 +7,7 @@ import doctor from '../../assets/doctor.jpeg'
 import { SelectField } from '../../Components/SelectField'
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
-import { updateFormData } from '../../Redux/doctorFormSlice'
+import { updateFormData } from '../../Redux/doctorSlice/doctorFormSlice'
 import { RootState } from '../../Redux/store'
 
 const SectionOne = () => {

@@ -1,4 +1,5 @@
 import { IDoctor } from "../../Models/doctorModel";
+import { ISpeciality } from "../../Models/specialisationModel";
 import { IUser } from "../../Models/userModel";
 
 export interface IUserRepository {
@@ -12,10 +13,11 @@ export interface IUserRepository {
   deleteOtp(email: string): Promise<void>;
 
   //user
-  getAllUser(): Promise<IUser[]>;
+  getAllUser(search:string,page:number,limit:number): Promise<{users:IUser[];totalPages:number;currentPage:number}>;
   getUserById(userId: string): Promise<IUser | null>;
   updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser | null>;
 
   //fetch doctor
   findDoctors(): Promise<IDoctor[]>;
+  fetchSpecialization():Promise<ISpeciality[]>
 }

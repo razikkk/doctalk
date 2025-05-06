@@ -161,7 +161,11 @@ const handlePrevious = (index:number,event:React.KeyboardEvent<HTMLInputElement>
         ):(
           <p>Resends In :{formatTime(resendOtp)}</p>
         )}
+        <div className=" w-full text-right mt-1">
+        <p className="text-[#157B7B] text-xs font-medium">Powered by Doctalk</p>
       </div>
+      </div>
+      
     </div>
   );
 };

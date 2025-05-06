@@ -20,7 +20,7 @@ const InputField = ({ name, placeholder, type = "text", onChange, value, error }
                 value={value}
                 className={`w-full px-4 py-3 border rounded-md shadow-sm focus:outline-none focus:ring-[#157B7B] focus:border-[#157B7B] ${
                     error ? 'border-red-500' : 'border-gray-300'
-                }`}
+    }`}
             />
             {error && (
                 <p className="mt-1 text-sm text-red-600">

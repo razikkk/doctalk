@@ -6,6 +6,7 @@ import { RootState } from '../Redux/store'
 
 const AdminProtectedRoute = () => {
  const isAuthenticated = useSelector((state:RootState)=>state.adminAuth.isAuthenticated)
+ console.log(isAuthenticated,'isss')
 
   if(!isAuthenticated ){
     return <Navigate to={'/admin/login'} replace />

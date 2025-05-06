@@ -5,7 +5,7 @@ import { doctorSignUp, googleLogin } from '../../utils/doctorAuth';
 import { Toaster,toast } from 'sonner';
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../../Redux/doctorSlice';
+import { loginSuccess } from '../../Redux/doctorSlice/doctorSlice';
 const DoctorRegister = () => {
     const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -220,7 +220,9 @@ const DoctorRegister = () => {
             {error&& <span className='error text-red-500'>{error}</span>}
 
             <GoogleLogin onSuccess={handleGoogleLogin} onError={()=>console.log("error occured")}/>
-            
+            <div className="text-right mt-4">
+        <p className="text-[#157B7B] text-xs font-medium">Powered by Doctalk</p>
+      </div>
           </div>
         </div>
       

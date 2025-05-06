@@ -8,13 +8,12 @@ import HowItWorks from "../../Components/HowItWorks";
 import footer from '../../assets/footerImg.png'
 import { useNavigate } from "react-router-dom";
 import {FaUserCircle} from 'react-icons/fa'
-import API from "../../utils/api";
 import { useDispatch } from "react-redux";
-import { login, logout } from "../../Redux/userAuthSlice";
-import { Toaster,toast } from "sonner";
+import { login, logout } from "../../Redux/userSlice/userAuthSlice";
+import { Toaster } from "sonner";
 import { fetchDoctors } from "../../utils/auth";
-import Cookies from "js-cookie";
 import {userLogout} from '../../utils/auth'
+import Footer from "../../Components/UserFooter";
 
 type Doctors = {
   _id:string,
@@ -23,7 +22,8 @@ type Doctors = {
     name:string
   },
   imageUrl:string,
-  experience:number
+  experience:number,
+  gender:string
 }
 
 const UserDashboard = () => {
@@ -108,6 +108,9 @@ const UserDashboard = () => {
     //     return () => clearInterval(intervalId);
 
     // }, [navigate, dispatch]);
+
+
+   
    
     const handleLogout = async()=>{
       const response = await userLogout()
@@ -174,12 +177,19 @@ const UserDashboard = () => {
       const fetchAllDoctors = async()=>{
         try {
           const response = await fetchDoctors()
-          
+          console.log(response,'redss')
           if(response?.data.success){
             setDoctors(response.data.doctor)
           }
         } catch (error:any) {
           console.log(error.message)
+          console.log(error?.response?.status,'sta')
+          if(error?.response?.status === 403){
+            
+            setTimeout(()=>{
+              dispatch(logout())
+            },1000)
+          }
         }
       }
       fetchAllDoctors()
@@ -200,7 +210,7 @@ const UserDashboard = () => {
         {/* Navigation Links */}
         <ul className="flex space-x-6">
           <li className="cursor-pointer">Home</li>
-          <li className="cursor-pointer">Doctors</li>
+          <li className="cursor-pointer" onClick={()=>navigate('/user/doctors')}>Doctors</li>
           <li className="cursor-pointer">About</li>
           <li className="cursor-pointer">Contact</li>
         </ul>
@@ -318,10 +328,10 @@ const UserDashboard = () => {
       <div>
         <HowItWorks/>
       </div>
+        <div className="mt-20">
 
-      <div className="flex justify-center pt-30">
-        <img className=" w-full max-w-[1300] h-100" src={footer} alt="fg" />
-      </div>
+     <Footer/>
+        </div>
     </div>
     
 

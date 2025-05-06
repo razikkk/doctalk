@@ -61,7 +61,8 @@ export const signIn = async(userData:any)=>{
         return {success:true,accessToken,user,isBlocked:false}
         // return response.data //{success:true,message,user,access,refresh}
     } catch (error:any) {
-        const errorFromBackend = error.response?.data?.message || "Login Failed"
+        const errorFromBackend = error.response?.data?.message
+        console.log(errorFromBackend,'bacl')
         return {success:false,message:errorFromBackend}
     }
 }
@@ -72,12 +73,23 @@ export const fetchDoctors = async()=>{
         return response
     } catch (error:any) {
         console.log(error.message)
+        throw error
     }
 }
 
 export const userLogout = async()=>{
     try {
         const response = await api.post(userEndpoints.LOGOUT)
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+
+export const fetchSpecialization = async()=>{
+    try {
+        const response = await api.get(userEndpoints.FETCH_SPECIALIZATION)
+        console.log(response.data,'hh')
         return response.data
     } catch (error:any) {
         console.log(error.message)

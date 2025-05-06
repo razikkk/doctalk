@@ -3,7 +3,7 @@ import doctor from "../../src/assets/registerDoctor.jpeg";
 import { useNavigate } from "react-router-dom";
 import { googleSignIn, signIn } from "../utils/auth";
 import { useDispatch } from "react-redux";
-import { login, logout } from "../Redux/userAuthSlice";
+import { login, logout } from "../Redux/userSlice/userAuthSlice";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import API from "../utils/api";
 import { toast } from "sonner";
@@ -161,6 +161,9 @@ const handleGoogleLogin = async(credentialResponse:CredentialResponse)=>{
               <span onClick={() => navigate("/register")} className="text-[#157B7B] cursor-pointer font-bold"> Sign Up</span>
             </p>
           </div>
+          <div className="text-right mt-4">
+        <p className="text-[#157B7B] text-xs font-medium">Powered by Doctalk</p>
+      </div>
         </div>
       </div>
     </div>

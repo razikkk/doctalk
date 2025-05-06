@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { blockUser, getAllUser, unblockUser } from "../../utils/adminAuth";
-import { setUsers, updateUserStatus } from "../../Redux/adminAuthSlice";
+import { setUsers, updateUserStatus } from "../../Redux/adminSlice/adminAuthSlice";
 import userImage from '../../assets/testimonial.jpeg'
 import { Pagination, PaginationItem } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { RootState } from "../../Redux/store";
+import CustomConfirmAlert from "../../Components/ConfirmAlert";
+import debounce from 'lodash.debounce'
 
 
 const Patients = () => {
@@ -25,73 +27,111 @@ const Patients = () => {
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState<Record<string, boolean>>({});
   const [localUsers, setLocalUsers] = useState<User[]>([]);
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isCurrentlyBlocked, setIsCurrentlyBlocked] = useState<boolean>(false);
+  const [totalPages,setTotalPages] = useState(1)
 
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 1; // Number of users per page
+  const usersPerPage = 10; // Number of users per page
   
 
   // Fetch users on component mount
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const userData = await getAllUser();
-        if (userData) {
-          dispatch(setUsers(userData));
-          setLocalUsers(userData); 
-        }
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, [dispatch]);
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const userData = await getAllUser();
+  //       if (userData) {
+  //         dispatch(setUsers(userData));
+  //         setLocalUsers(userData); 
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching users:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchUsers();
+  // }, [dispatch]);
 
   
-  useEffect(() => {
-    if (users && users.length > 0) {
-      setLocalUsers(users);
-    }
-  }, [users]);
+  // useEffect(() => {
+  //   if (users && users.length > 0) {
+  //     setLocalUsers(users);
+  //   }
+  // }, [users]);
 
  
-  const filteredUsers = localUsers.filter((user) =>
-    user && user.name && user.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // const filteredUsers = localUsers.filter((user) =>
+  //   user && user.name && user.name.toLowerCase().includes(search.toLowerCase())
+  // );
 
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const paginatedUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  // const indexOfLastUser = currentPage * usersPerPage;
+  // const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  // const paginatedUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-  const handlePageChange = (_:React.ChangeEvent<unknown>, value:number) => {
-    setCurrentPage(value);
+  // const handlePageChange = (_:React.ChangeEvent<unknown>, value:number) => {
+  //   setCurrentPage(value);
+  // };
+
+  const fetchUsers = useCallback(
+    debounce(async(searchValue:string,page:number)=>{
+      setLoading(true)
+      try {
+        const response = await getAllUser(searchValue,page,usersPerPage)
+        console.log(response,'use')
+        if(response){
+          dispatch(setUsers(response.users))
+          setLocalUsers(response.users)
+          setTotalPages(response.totalPages)
+        }
+      } catch (error:any) {
+        console.log(error.message)
+      }finally{
+        setLoading(false)
+      }
+    },500),
+    []
+  )
+
+  useEffect(()=>{
+    fetchUsers(search,currentPage)
+  },[search,currentPage,fetchUsers])
+
+  const handleSearchChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
+    setSearch(e.target.value)
+    setCurrentPage(1)
+  }
+
+  const handlePageChange = (_:React.ChangeEvent<unknown>,value:number)=>{
+    setCurrentPage(value)
+  }
+
+
+  const handleBlockAndUnblock = async (userId:string, isCurrentlyBlocked:boolean) => {
+    setCurrentUserId(userId);
+    setIsCurrentlyBlocked(isCurrentlyBlocked);
+    setShowAlert(true); 
   };
 
-  
-  const handleBlockAndUnblock = async (userId:string, isCurrentlyBlocked:boolean) => {
-    const response = confirm(`Are you sure you want to ${isCurrentlyBlocked ? 'unblock' : 'block'} this user?`)
-    
-    if(!response) return 
-    setLoadingUsers(prev => ({ ...prev, [userId]: true }));
-
+  const handleConfirm = async () => {
+    if(!currentUserId) return 
+    setLoadingUsers(prev => ({ ...prev, [currentUserId]: true }));
     try {
       let result;
       if (isCurrentlyBlocked) {
-        result = await unblockUser(userId);
+        result = await unblockUser(currentUserId);
       } else {
-        result = await blockUser(userId);
+        result = await blockUser(currentUserId);
       }
 
       if (result && result.success) {
-       
-        dispatch(updateUserStatus({ userId, isBlocked: !isCurrentlyBlocked }));
+        dispatch(updateUserStatus({ userId: currentUserId, isBlocked: !isCurrentlyBlocked }));
 
-       
         setLocalUsers(prevUsers =>
           prevUsers.map(user =>
-            user._id === userId
+            user._id === currentUserId
               ? { ...user, isBlocked: !isCurrentlyBlocked }
               : user
           )
@@ -102,14 +142,18 @@ const Patients = () => {
     } catch (error) {
       console.error("Error in block/unblock:", error);
     } finally {
-      // Clear loading state for this user
-      setLoadingUsers(prev => ({ ...prev, [userId]: false }));
+      setLoadingUsers(prev => ({ ...prev, [currentUserId]: false }));
+      setShowAlert(false); // Close the modal
     }
   };
 
   useEffect(()=>{
     setCurrentPage(1)
   },[search])
+  
+  const handleCancel = () => {
+    setShowAlert(false); // Close the modal
+  };
 
   return (
     <div className="w-full px-6 mt-6">
@@ -119,7 +163,7 @@ const Patients = () => {
           type="text"
           placeholder="Search Users..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={handleSearchChange}
           className="p-3 border  rounded w-1/3 focus:outline-none focus:ring-2 focus:ring-[#157B7B]"
         />
         <button className="bg-[#157B7B] text-white px-6 py-3 rounded hover:bg-[#0f5e5e]" disabled={loading}>
@@ -139,8 +183,8 @@ const Patients = () => {
 
       {/* User List */}
       <div className="space-y-4 mt-4">
-        {paginatedUsers.length > 0 ? (
-          paginatedUsers.map((user:any) => (
+        {localUsers.length > 0 ? (
+          localUsers.map((user:any) => (
             <div
               key={user._id}
               className="flex justify-between items-center p-4 bg-white shadow-md rounded-lg border border-gray-200"
@@ -166,6 +210,13 @@ const Patients = () => {
                     loadingUsers[user._id] ? "loading": user.isBlocked ? "unblock" : "block"
                   }
                 </button>
+                {showAlert && (
+        <CustomConfirmAlert
+          isCurrentlyBlocked={isCurrentlyBlocked}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
+      )}
               </div>
             </div>
           ))
@@ -174,7 +225,7 @@ const Patients = () => {
         )}
       </div>
       <Pagination
-          count={Math.ceil(filteredUsers.length / usersPerPage)} // Total pages
+          count={totalPages} // Total pages
           page={currentPage}
           onChange={handlePageChange}
           variant="outlined"

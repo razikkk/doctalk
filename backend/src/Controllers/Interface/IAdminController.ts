@@ -82,5 +82,8 @@ export interface IAdminInterface {
     next: NextFunction
   ): Promise<void | Response>;
   refreshToken(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  fetchDoctorAppointment(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  filterSlots(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+
 }
 

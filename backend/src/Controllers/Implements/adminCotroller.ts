@@ -59,8 +59,12 @@ export class AdminController implements IAdminInterface {
     next: NextFunction
   ): Promise<void | Response> {
     try {
-      const users = await this.userService.getAllUsers();
-      res.status(201).json({ success: true, users });
+      const search = req.query.search as string
+      const page = parseInt(req.query.page as string) || 1
+      const limit = parseInt(req.query.limit as string) || 5
+      const users = await this.userService.getAllUsers(search,page,limit);
+      console.log(users,'fdd')
+      res.status(201).json({ success: true, ...users });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -206,9 +210,12 @@ export class AdminController implements IAdminInterface {
     next: NextFunction
   ): Promise<void | Response> {
     try {
-      const doctor = await this.adminService.getAllDoctors();
+      const search = req.query.search as string
+      const page = parseInt(req.query.page as string) || 1
+      const limit = parseInt(req.query.limit as string) || 5
+      const doctor = await this.adminService.getAllDoctors(search,page,limit);
       console.log("doctors", doctor);
-      res.status(200).json({ success: true, doctor });
+      res.status(200).json({ success: true, ...doctor });
     } catch (error) {
       res.status(500).json({ success: false, error });
     }
@@ -399,5 +406,38 @@ export class AdminController implements IAdminInterface {
       console.log(error)
     }
   }
+
+  //logout
+
+
+  async fetchDoctorAppointment(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+        const doctorAppointment = await this.adminService.fetchDoctorAppointment()
+        console.log(doctorAppointment,'dr')
+          if(!doctorAppointment){
+            res.status(404).json({success:false,message:"No Appointments found"})
+            return
+          }
+           res.status(200).json({success:true,message:"Appointments fetched successfully",doctorAppointment})
+           return
+    } catch (error:any) {
+      console.log(error.message)
+      res.status(500).json({success:false,message:error.message})
+      return
+    }
+  }
+
+  async filterSlots(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+        const{slotDate,doctorId} = req.query
+        if(!slotDate){
+            return res.status(401).json({success:false,message:"Date is required"})
+        }
+        const filteredSlots = await this.adminService.filterSlots(slotDate as string,doctorId as string)
+        return res.status(200).json({success:true,message:"slot filteration success",filteredSlots})
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
 
 }

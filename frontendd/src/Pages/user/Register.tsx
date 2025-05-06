@@ -5,7 +5,7 @@ import { googleSignIn, signUp } from "../../utils/auth";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { Toaster,toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { login } from "../../Redux/userAuthSlice";
+import { login } from "../../Redux/userSlice/userAuthSlice";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -190,6 +190,9 @@ const Register = () => {
                 <span onClick={() => navigate("/login")} className="text-[#157B7B] cursor-pointer font-bold"> Sign In</span>
               </p>
             </div>
+            <div className="text-right mt-4">
+        <p className="text-[#157B7B] text-xs font-medium">Powered by Doctalk</p>
+      </div>
           </div>
         </div>
       

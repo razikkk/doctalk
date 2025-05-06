@@ -1,3 +1,4 @@
+import { JWTAccess } from "google-auth-library";
 import { Doctor, IDoctor } from "../../Models/doctorModel";
 import { IAdmin } from "../../Repositories/interface/IAdminRepository";
 import { IDoctorRepository } from "../../Repositories/interface/IDoctorRepository";
@@ -8,6 +9,9 @@ import { sendMail } from "../../utils/nodemailer";
 import { IDoctorService } from "../Interface/IDoctorService";
 import bcrypt from 'bcryptjs'
 import { Types } from "mongoose";
+import jwt from 'jsonwebtoken'
+import { ISlot, Slot } from "../../Models/slotModel";
+import { ISpeciality } from "../../Models/specialisationModel";
 
 export class DoctorService implements IDoctorService{
     private doctorRepository:IDoctorRepository
@@ -139,6 +143,7 @@ async login(email: string, password: string): Promise<IDoctorLoginType> {
     }
 
     const doctorAccessToken = generateAccessToken(doctor._id.toString(),doctor.role)
+    console.log(jwt.decode(doctorAccessToken))
     const doctorRefreshToken = generateRefreshToken(doctor._id.toString(),doctor.role)
     return {doctorData:doctor,doctorAccessToken,doctorRefreshToken}
 }
@@ -166,6 +171,19 @@ async getDoctorProfile(doctorId: string): Promise<IDoctor | null> {
     }
     return doctor
 }
-    
+    async addSlots(slotData: ISlot): Promise<ISlot> {
+        return await this.doctorRepository.addSlots(slotData)
+    }
 
+    async editDoctorProfile(doctorId: string, doctorData: Partial<IDoctor>): Promise<IDoctor | null> {
+        return await this.doctorRepository.editDoctorProfile(doctorId,doctorData)
+    }
+    async getAllSpecialities(): Promise<ISpeciality[]> {
+        return await this.doctorRepository.getAllSpecialities()
+    }
+    async fetchDoctorAppointment(doctorId:string): Promise<ISlot[]> {
+        return this.doctorRepository.fetchDoctorAppointment(doctorId)
+    }
+
+    
 }

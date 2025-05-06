@@ -10,6 +10,7 @@ import dotenv from 'dotenv'
 import { googleDoctorInput, googleUserInput } from "../../type/type";
 import { generateAccessToken } from "../../utils/jwtUtil";
 import jwt, { JwtPayload } from 'jsonwebtoken'
+import { ISlot, Slot } from "../../Models/slotModel";
 dotenv.config()
 
 const client = new OAuth2Client(process.env.CLIENT_ID)
@@ -34,6 +35,7 @@ export class DoctorController implements IDoctorController{
             await this.doctorService.generateOtp(email,'doctor')
             res.status(201).json({success:true,message:"doctor registered",result})
          } catch (error:any) {
+            console.log(error.message)
             res.status(500).json({success:false,message:error.message})
         }
     }
@@ -158,13 +160,12 @@ export class DoctorController implements IDoctorController{
                return res.status(400).json({success:false,message:"password is required"})
             }
             const {doctorData,doctorAccessToken,doctorRefreshToken} = await this.doctorService.login(email,password)
-            res.cookie("doctroRefreshToken",doctorRefreshToken,{
+            res.cookie("doctorRefreshToken",doctorRefreshToken,{
                 httpOnly:true,
                 secure:false,
                 sameSite:'lax',
                 maxAge:7 * 24 * 60 * 60 * 1000
             })
-            
             return res.status(201).json({success:true,message:"doctor logined successfully",doctor:doctorData,doctorAccessToken,doctorRefreshToken})
         } catch (error:any) {
            return res.status(500).json({success:false,message:error.message})
@@ -229,8 +230,8 @@ export class DoctorController implements IDoctorController{
             if (!doctor || !doctor._id) {
                 throw new Error("Doctor creation failed or invalid _id");
               }
-            const token = await generateAccessToken(doctor?._id.toString(),doctor.role)
-            console.log(token,'tok')
+            const token =  generateAccessToken(doctor?._id.toString(),doctor.role)
+            console.log(token,'google')
             res.status(200).json({success:true,message:"doctor created",token,doctor})
 
         } catch (error) {
@@ -240,13 +241,14 @@ export class DoctorController implements IDoctorController{
     async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
         try {
             const refreshToken = req.cookies.doctorRefreshToken
+            console.log("refresh",refreshToken)
             if(!refreshToken){
                 res.status(404).json({success:false,message:"Token not found"})
             }
             const decoded = jwt.verify(refreshToken,REFRESH_TOKEN_SECRET) as JwtPayload
-            const {doctorId,role} = decoded
+            const {userId,role} = decoded
 
-            const newDoctorAccessToken = jwt.sign({doctorId,role},ACCESS_TOKEN_SECRET,{expiresIn:'5d'})
+            const newDoctorAccessToken = jwt.sign({userId,role},ACCESS_TOKEN_SECRET,{expiresIn:'5d'})
 
             console.log("kaznj")
             return res.status(200).json({success:true,doctorAccessToken:newDoctorAccessToken})
@@ -277,4 +279,105 @@ export class DoctorController implements IDoctorController{
             return
         }
     }
+
+    async logout(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+        try {
+            res.clearCookie("doctorAccessToken")
+            res.clearCookie("doctorRefreshToken",{
+                httpOnly:true,
+                secure:false,
+                sameSite:'lax',
+                path:'/'
+            })
+            res.status(200).json({success:true,message:"logout successfully"})
+            return
+        } catch (error) {
+            
+        }
+    }
+
+    async addSlot(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+        try {
+            const data = req.body
+            console.log(req.body,'body')
+            const slot = await this.doctorService.addSlots(data)
+            return res.status(201).json({success:true,message:"Slot created",slot})
+        } catch (error:any) {
+            console.log(error.message)
+            return res.status(500).json({success:false,message:error.message})
+        }
+    }
+
+    async editDoctorProfile(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+        try {
+            const {doctorId} = req.params
+            const doctorData:any = {
+                name:req.body.name,
+                language:req.body.language,
+                hospital: req.body.hospital,
+                experience: req.body.experience,
+                about: req.body.about,
+                specialization: req.body.specialization,
+                gender: req.body.gender,
+            }
+            const files = req.files as {
+                [fieldname:string]:Express.Multer.File[]
+            }
+            console.log(files,'files')
+            if(files?.imageUrl?.[0]){
+                doctorData.imageUrl = files.imageUrl[0].path
+            }
+            if (files?.identityProofUrl?.[0]) {
+                doctorData.identityProofUrl = files.identityProofUrl[0].path;
+              }
+              if (files?.medicalCertificateUrl?.[0]) {
+                doctorData.medicalCertificateUrl = files.medicalCertificateUrl[0].path;
+              }
+            // console.log(req.body,'boo')
+            // console.log(doctorId,'ddddd')
+            if(!doctorId){
+                res.status(401).json({success:false,message:"doctorId is required"})
+                return 
+            }
+            
+            if(!doctorData){
+                res.status(401).json({success:false,message:"doctor Data is required"})
+                return
+            }
+            const updatedProfile = await this.doctorService.editDoctorProfile(doctorId,doctorData)
+            console.log(updatedProfile,'update')
+            res.status(200).json({success:true,message:"Doctor profile updated successfully",updatedProfile})
+            return 
+        } catch (error:any) {
+            console.log(error.message)
+            res.status(500).json({success:false,message:error.message})
+        }
+    }
+    async getAllSpecialities(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+        try {
+            const getAllSpecialities = await this.doctorService.getAllSpecialities()
+            return res.status(200).json({success:true,message:"fetched specialities",getAllSpecialities})
+        } catch (error:any) {
+            console.log(error.message)
+            return res.status(500).json({success:false,message:error.message})
+        }
+    }
+
+    async fetchDoctorAppointment(req:Request,res:Response,next:NextFunction): Promise<void | Response> {
+        try {
+            const {doctorId} = req.query
+            const slotData = await this.doctorService.fetchDoctorAppointment(doctorId as string)
+            if(!doctorId){
+                return res.status(400).json({success:false,message:"doctorId is required"})
+            }
+            if(!slotData){
+                return res.status(400).json({success:false,message:"slot data is required"})
+            }
+            return res.status(200).json({success:true,message:"slot data fetched successfullu",slotData})
+        } catch (error:any) {
+            console.log(error.message)
+            res.status(500).json({success:false,message:error.message})
+        }
+    }
+    
 }

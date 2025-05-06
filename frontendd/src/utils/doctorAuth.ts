@@ -64,7 +64,7 @@ export const login = async(doctorData:any)=>{
         const response = await doctorApi.post(doctorEndpoints.SIGNIN,doctorData,{withCredentials:true})
     const {doctor,doctorAccessToken} = response.data
 
-    Cookies.set("doctorAccessToken",doctorAccessToken)
+    Cookies.set("doctorAccessToken",doctorAccessToken,{path:'/'})
     localStorage.setItem('role', doctor.role)
     
     return response.data
@@ -76,7 +76,7 @@ export const login = async(doctorData:any)=>{
 
 export const googleLogin = async(idToken:string,actionType:'login' | 'register')=>{
     try {
-        const response = await fetch('http://localhost:3000/api/doctor/doctor-google-login',{
+        const response = await fetch(`http://localhost:3000/api/doctor${doctorEndpoints.GOOGLE_LOGIN}`,{
             method:"POST",
             headers:{"Content-Type":"application/json"},
             credentials:'include',
@@ -86,6 +86,9 @@ export const googleLogin = async(idToken:string,actionType:'login' | 'register')
             console.log("google login failed",response)
         }
         const data = await response.json()
+        if(data.token){
+            Cookies.set("doctorAccessToken",data.token)
+        }
         return data
 
     } catch (error:any) {
@@ -96,14 +99,59 @@ export const googleLogin = async(idToken:string,actionType:'login' | 'register')
 
 export const getDoctorProfile = async(doctorId:string)=>{
     try {
-        console.log(doctorEndpoints.GET_DOCTOR_PROFILE(doctorId),'ddd')
         const response = await doctorApi.get(doctorEndpoints.GET_DOCTOR_PROFILE(doctorId))
 
         console.log(response.data)
         return response.data
     } catch (error:any) {
         console.log(error.message)
+        throw error
+    }
+}
+ export const doctorLogout = async()=>{
+        try {
+            const response = await doctorApi.post(doctorEndpoints.LOGOUT)
+            return response.data
+        } catch (error:any) {
+            console.log(error.message)
+        }
+    }
+export const addSlots = async(slotData:object)=>{
+    try {
+        const response = await doctorApi.post(doctorEndpoints.ADD_SLOTS,slotData)
+        console.log(response)
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+export const editDoctorProfile = async(doctorId:string,doctorData:any)=>{
+    try {
+        const response = await doctorApi.patch(doctorEndpoints.EDIT_DOCTOR_PROFILE(doctorId),doctorData,{
+            headers:{
+                "Content-Type":"multipart/form-data"
+            }
+        })
+        console.log(doctorId,doctorData,'dd')
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+}
+}
+export const getAllSpecialities = async()=>{
+    try {
+        const response = await doctorApi.get(doctorEndpoints.SPECIALITIES)
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
     }
 }
 
-
+export const fetchDoctorAppointment = async(doctorId:string)=>{
+    try {
+        const response = await doctorApi.get(doctorEndpoints.APPOINTMENTS(doctorId))
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}

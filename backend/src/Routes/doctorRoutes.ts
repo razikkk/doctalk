@@ -5,6 +5,8 @@ import { DoctorService } from "../Services/Implements/doctorService";
 import express, { RequestHandler } from 'express'
 import uploads from "../config/multer";
 import { AdminRepository } from "../Repositories/implements/adminRepository";
+import { verifyToken } from "../middleware/authMiddleware";
+import limitter from "../middleware/RateLimitter";
 
 
 const router = express.Router()
@@ -15,10 +17,10 @@ const doctorService = new DoctorService(doctorRepository,UserRepository,adminRep
 const doctorController = new DoctorController(doctorService,doctorRepository)
 
 const register = doctorController.register.bind(doctorController) as RequestHandler
-router.post('/register',register)
+router.post('/register',limitter,register)
 
 const verifyOtp = doctorController.verifyOtp.bind(doctorController) as RequestHandler
-router.post('/verifyOtp',verifyOtp)
+router.post('/verifyOtp',limitter,verifyOtp)
 
 const resendOtp = doctorController.resendOtp.bind(doctorController) as RequestHandler
 router.post('/resendOtp',resendOtp)
@@ -33,11 +35,32 @@ const getDoctorStatus = doctorController.getDoctorStatus.bind(doctorController) 
 router.get('/status/:email',getDoctorStatus)
 
 const login = doctorController.login.bind(doctorController) as RequestHandler
-router.post('/login',login)
+router.post('/login',limitter,login)
 
 const googleLogin = doctorController.googleLogin.bind(doctorController) as RequestHandler
 router.post('/doctor-google-login',googleLogin)
 
+const refreshToken = doctorController.refreshToken.bind(doctorController) as RequestHandler
+router.post('/refreshToken',refreshToken)
+
 const getDoctorProfile = doctorController.getDoctorProfile.bind(doctorController) as RequestHandler
-router.get('/profile/:doctorId',getDoctorProfile)
+router.get('/profile/:doctorId', verifyToken,getDoctorProfile)
+
+const logout = doctorController.logout.bind(doctorController) as RequestHandler
+router.post('/logout',logout)
+
+const addSlots = doctorController.addSlot.bind(doctorController) as RequestHandler
+router.post('/add-slot',verifyToken,addSlots)
+
+const editDoctorProfile = doctorController.editDoctorProfile.bind(doctorController) as RequestHandler
+router.patch('/profile/editProfile/:doctorId',uploads.fields([{name:"imageUrl",maxCount:1},{name:"identityProofUrl",maxCount:1},{name:"medicalCertificateUrl",maxCount:1}]),editDoctorProfile)
+
+const getAllSpecialities = doctorController.getAllSpecialities.bind(doctorController) as RequestHandler
+router.get('/getAllSpecialities',verifyToken,getAllSpecialities)
+
+const fetchDoctorAppointment = doctorController.fetchDoctorAppointment.bind(doctorController) as RequestHandler
+router.get('/appointments',fetchDoctorAppointment)
+
+
+
 export default router

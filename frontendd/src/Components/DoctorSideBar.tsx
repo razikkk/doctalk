@@ -2,8 +2,9 @@ import React from 'react';
 import { LayoutDashboard, MessageSquare, Wallet, Calendar, LogOut } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../Redux/doctorSlice';
+import { logout } from '../Redux/doctorSlice/doctorSlice';
 import logo from '../assets/adminLogo.png'
+import { doctorLogout } from '../utils/doctorAuth';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -33,9 +34,12 @@ export const DoctorSideBar = () => {
     const navigate = useNavigate()
     const handleLogout = async()=>{
         // localStorage.removeItem("doctorAccessToken")
-        
-        dispatch(logout())
-        navigate('/doctor/login')
+        const response = await doctorLogout()
+        if(response.success){
+            dispatch(logout())
+            navigate('/doctor/login')
+        }
+       
       }
 
   return (
@@ -56,25 +60,27 @@ export const DoctorSideBar = () => {
             icon={<LayoutDashboard size={22} />}
             label="Dashboard"
             active={activeItem === 'Dashboard'}
-            onClick={() => setActiveItem('Dashboard')}
+            onClick={() => {setActiveItem('Dashboard');navigate('/doctor/dashboard')}}
+            
+            
           />
           <NavItem
             icon={<MessageSquare size={22} />}
             label="Messages"
             active={activeItem === 'Messages'}
-            onClick={() => setActiveItem('Messages')}
+            onClick={() => {setActiveItem('Messages');navigate('/doctor/message')}}
           />
           <NavItem
             icon={<Wallet size={22} />}
             label="Wallet"
             active={activeItem === 'Wallet'}
-            onClick={() => setActiveItem('Wallet')}
+            onClick={() => {setActiveItem('Wallet');navigate('/doctor/wallet')}}
           />
           <NavItem
             icon={<Calendar size={22} />}
             label="Appointments"
             active={activeItem === 'Appointments'}
-            onClick={() => setActiveItem('Appointments')}
+            onClick={() => {setActiveItem('Appointments');navigate('/doctor/appointments')}}
           />
         </div>
   

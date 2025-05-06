@@ -9,7 +9,8 @@ type Doctor={
   specialization:{
     name:string
   },
-  experience:number
+  experience:number,
+  gender:string
 }
 
 type DoctorCardProps = {
@@ -35,8 +36,9 @@ const DoctorCard : React.FC<DoctorCardProps>=({ doctor }) => {
       <div className="mt-1 text-gray-600 text-sm">
         <p>→ Specialization : {doctor.specialization?.name}</p>
         <p>→ Experience :  {doctor.experience}</p>
-        <p>→ Available for Online Consultation</p>
-        <p>→ Trusted by 5000+ Patients</p>
+        {/* <p>→ Available for Online Consultation</p> */}
+        {/* <p>→ Trusted by 5000+ Patients</p> */}
+        <p>→ Gender : {doctor.gender}</p>
       </div>
     </div>
   );

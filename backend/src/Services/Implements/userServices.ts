@@ -10,6 +10,7 @@ import  jwt  from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import redisClient from '../../config/redisClient'
 import { IDoctor } from '../../Models/doctorModel'
+import { ISpeciality } from '../../Models/specialisationModel'
 dotenv.config()
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN || 'razik3407'
@@ -114,9 +115,9 @@ export class userService implements IUserService{
                 }
             }
 
-            async getAllUsers(): Promise<IUser[]> {
+            async getAllUsers(search:string,page:number,limit:number): Promise<{users:IUser[];totalPages:number;currentPage:number}> {
                 try {
-                    return await this.userRepository.getAllUser()
+                    return await this.userRepository.getAllUser(search,page,limit)
                 } catch (error:any) {
                     console.log(error.message)
                     throw new Error("failed to get users")
@@ -144,7 +145,7 @@ export class userService implements IUserService{
 
             async blockUser(userId: string): Promise<void> {
                 const user = await this.userRepository.updateUser(userId,{isBlocked:true})
-                await redisClient.set(`blocked: ${userId}`,"true")
+                await redisClient.set(`blocked:${userId}`,"true")
                 if(!user){
                     throw new Error("user not found")
                 }
@@ -160,6 +161,10 @@ export class userService implements IUserService{
 
           async findDoctor(): Promise<IDoctor[]> {
               return await this.userRepository.findDoctors()
+          }
+
+          async fetchSpecialization(): Promise<ISpeciality[]> {
+              return this.userRepository.fetchSpecialization()
           }
           
         

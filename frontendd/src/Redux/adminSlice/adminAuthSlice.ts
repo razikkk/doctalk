@@ -11,12 +11,12 @@ interface AdminAuth{
 
 const token = Cookies.get("adminAccessToken")
 const adminId = localStorage.getItem("adminId")
-const role = localStorage.getItem("role")
+const role = localStorage.getItem("adminRole")
 
 const initialState:AdminAuth={
-    token:null,
-    adminId:null,
-    role: role || null,
+    token:token || "",
+    adminId:adminId || "",
+    role: role || "",
     isAuthenticated:!!token && role == 'admin',
     users:[]
 }
@@ -34,7 +34,7 @@ const adminAuthSlice = createSlice({
 
             if(token) Cookies.set("adminAccessToken",token)
             if(adminId) localStorage.setItem("adminId",adminId)
-            if(role) localStorage.setItem("role",role)
+            if(role) localStorage.setItem("adminRole",role)
 
         },
         adminlogout : (state)=>{
@@ -44,7 +44,7 @@ const adminAuthSlice = createSlice({
             state.isAuthenticated = false
             Cookies.remove("adminAccessToken")
             localStorage.removeItem("adminId")
-            localStorage.removeItem("role")
+            localStorage.removeItem("adminRole")
         },
         
         setUsers:(state,action)=>{

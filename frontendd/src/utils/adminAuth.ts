@@ -1,6 +1,7 @@
 import { adminEndpoints } from "../Routes/endPointUrl";
 import adminAPI from "./adminApi";
 import Cookies from "js-cookie";
+import doctorApi from "./doctorApi";
 export const adminSignIn = async (adminData:any)=>{
     try {
         const response = await adminAPI.post(adminEndpoints.SIGNIN,adminData,{withCredentials:true})
@@ -18,14 +19,22 @@ export const adminSignIn = async (adminData:any)=>{
     }
 }
 
-export const getAllUser = async()=>{
+export const getAllUser = async(search:string,page:number,limit:number)=>{
     try {
-        const response = await adminAPI.get(adminEndpoints.PATIENTS)
+        const response = await adminAPI.get(adminEndpoints.PATIENTS,{
+            params:{search,page,limit}
+        })
         const filterUsers = response.data.users.filter((user:any)=>user.role == 'user')
-        return filterUsers
+
+        return {
+            users:filterUsers,
+            totalPages:response.data.totalPages,
+            currentPage:response.data.currentPage
+
+        }
     } catch (error) {
         console.log("error occured",error)
-        return []
+        return {users:[],totalPages:0,currentPage:1}
     }
 }
 
@@ -133,9 +142,11 @@ export const getActiveSpecialites = async()=>{
     }
 }
 
-export const getAllDoctors = async ()=>{
+export const getAllDoctors = async (search:string,page:number,limit:number)=>{
     try {
-        const response = await adminAPI.get(adminEndpoints.DOCTORS)
+        const response = await adminAPI.get(adminEndpoints.DOCTORS,{
+            params:{search,page,limit}
+        })
         console.log("response doctors",response)
         return response.data
     } catch (error:any) {
@@ -200,9 +211,24 @@ export const unblockUser = async(userId:string)=>{
 
 export const blockAndUnblockDoctor = async(doctorId:string)=>{
     try {
-        const response = await adminAPI.put(`/doctors/${doctorId}/block`)
+        const response = await adminAPI.put(adminEndpoints.BLOCK_UNBLOCK_DOCTOR(doctorId))
         return response.data //returning response dta to update ui
     } catch (error:any) {
         console.log(error.message)
     }
+}
+
+export const fetchDoctorAppointment = async()=>{
+    try {
+        const response = await adminAPI.get(adminEndpoints.FETCH_DOCTOR_APPOINTMENTS)
+        console.log(response,'res')
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+
+export const filteredSlots = async(slotDate:string,doctorId:string)=>{
+const response = await adminAPI.get(adminEndpoints.APPOINTMENT_FILTER_BY_DATE(slotDate,doctorId))
+return response.data
 }

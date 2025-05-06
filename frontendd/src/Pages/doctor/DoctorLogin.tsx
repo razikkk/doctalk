@@ -3,8 +3,7 @@ import {  useNavigate } from 'react-router-dom'
 import doctor from '../../assets/doctor.jpeg'
 import { googleLogin, login } from '../../utils/doctorAuth';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../../Redux/doctorSlice';
-import Cookies from 'js-cookie';
+import { loginSuccess } from '../../Redux/doctorSlice/doctorSlice';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../Redux/store';
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
@@ -72,7 +71,6 @@ const DoctorLogin = () => {
           
 
           setTimeout(()=>{
-          
             navigate('/doctor/dashboard')
           },100)
         }
@@ -136,8 +134,11 @@ const DoctorLogin = () => {
               <span onClick={() => navigate("/doctor/register")} className="text-[#157B7B] cursor-pointer font-bold"> Sign Up</span>
             </p>
           </div>
-          {error && <span className='error text-red-500'>{error}</span>}
+          {/* {error && <span className='error text-red-500'>{error}</span>} */}
           <GoogleLogin onSuccess={handleGoogleLogin} onError={()=>console.log("not okay")} />
+          <div className="text-right mt-4">
+        <p className="text-[#157B7B] text-xs font-medium">Powered by Doctalk</p>
+      </div>
         </div>
       </div>
     </div>

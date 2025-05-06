@@ -2,6 +2,11 @@ import { Types } from "mongoose";
 import { ISpeciality, speciality } from "../../Models/specialisationModel";
 import { IAdmin } from "../interface/IAdminRepository";
 import { Doctor, IDoctor } from "../../Models/doctorModel";
+import { ISlot, Slot } from "../../Models/slotModel";
+
+
+//encapsulation
+
 
 
 
@@ -40,8 +45,14 @@ export class AdminRepository  implements IAdmin{
         console.log('ublocked',result)
         return result
     }
-    async getAllDoctors(): Promise<IDoctor[]> {
-        return await Doctor.find().populate("specialization","name")
+    async getAllDoctors(search:string,page:number,limit:number): Promise<{doctors:IDoctor[];totalPages:number;currentPage:number}> {
+        const filter = search ? {name:{$regex:search,$options:"i"}} : {}
+
+        const totalDocs = await Doctor.countDocuments(filter)
+        const totalPages = Math.ceil(totalDocs/limit)
+        const skip = (page - 1) * limit
+         const doctors = await Doctor.find(filter).skip(skip).limit(limit).populate("specialization","name")
+         return {doctors,totalPages,currentPage:page}
     }
     async getDoctorById(doctorId:string):Promise<IDoctor | null>{
         return await Doctor.findById(doctorId).populate("specialization","name")
@@ -59,6 +70,39 @@ export class AdminRepository  implements IAdmin{
     async blockAndUnblockDoctor(doctorId: string, isBlocked: boolean): Promise<boolean | null> {
         const updateDoctor = await Doctor.findByIdAndUpdate(doctorId,{isBlocked},{new:true})
         return updateDoctor ? updateDoctor.isBlocked ?? null : null // doctor ndengil isblocked (true or false) allengil null
+    }
+    async fetchDoctorAppointment(): Promise<ISlot[]> {
+        return await Slot.find().populate({
+            path:'doctorId',
+            select:'name imageUrl specialization',
+            populate:{
+                path:'specialization',
+                select:'name'
+            }
+        })
+    }
+
+    async filterSlots(slotDate: string,doctorId:string): Promise<ISlot[]> {
+        const startOfDay = new Date(slotDate)
+        startOfDay.setHours(0,0,0,0)
+
+        const endOfDay = new Date(slotDate)
+        endOfDay.setHours(23,59,59,999)
+
+        return Slot.find({
+            days:{
+                $gte:startOfDay,
+                $lte:endOfDay
+            },
+            doctorId:doctorId
+        }).populate({
+            path:'doctorId',
+            select:'name imageUrl specialization',
+            populate:{
+                path:'specialization',
+                select:'namae'
+            }
+        })
     }
 
 }

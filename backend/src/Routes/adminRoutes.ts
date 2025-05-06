@@ -7,6 +7,7 @@ import { AdminService } from '../Services/Implements/adminService'
 import uploads from '../config/multer'
 import { verifyToken } from '../middleware/authMiddleware'
 import { authorizeRole } from '../middleware/roleBasedAuthorization'
+import limitter from '../middleware/RateLimitter'
 
 const router = express.Router()
 const UserRepository = new userRepository()
@@ -16,7 +17,7 @@ const adminService = new AdminService(adminRepository)
 const adminController = new AdminController(UserService,adminService)
 
 const loginHandler = adminController.adminLogin.bind(adminController) as RequestHandler
-router.post('/login',loginHandler)
+router.post('/login',limitter,loginHandler)
 
 const getAllUser = adminController.getAllUsers.bind(adminController) as RequestHandler
 router.get("/all-patients",verifyToken,authorizeRole(['admin']),getAllUser)
@@ -62,4 +63,10 @@ router.put(`/doctors/:doctorId/block`,verifyToken,authorizeRole(['admin']),block
 
 const refreshToken = adminController.refreshToken.bind(adminController) as RequestHandler
 router.post('/refreshToken',refreshToken)
+
+const fetchDoctorAppointment = adminController.fetchDoctorAppointment.bind(adminController) as RequestHandler
+router.get('/appointments',verifyToken,authorizeRole(['admin']),fetchDoctorAppointment)
+
+const filteredSlots = adminController.filterSlots.bind(adminController) as RequestHandler
+router.get('/appointments/filter',verifyToken,authorizeRole(['admin']),filteredSlots)
 export default router

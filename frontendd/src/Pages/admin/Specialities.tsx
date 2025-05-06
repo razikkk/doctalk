@@ -6,7 +6,7 @@ import {
   updateSpeciality,
   deleteSpeciality,
   restoreSpeciality,
-} from "../../Redux/specialitySlice";
+} from "../../Redux/adminSlice/specialitySlice";
 import {
   specialities as fetchSpecialities,
   addSpecialities,

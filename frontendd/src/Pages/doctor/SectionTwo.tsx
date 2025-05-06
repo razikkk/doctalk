@@ -9,7 +9,7 @@ import {  getActiveSpecialites } from '../../utils/adminAuth'
 import { Alert } from '@mui/material'
 import { InfoIcon } from 'lucide-react'
 import { useDispatch } from 'react-redux'
-import { updateFormData } from '../../Redux/doctorFormSectionTwoSlice'
+import { updateFormData } from '../../Redux/doctorSlice/doctorFormSectionTwoSlice'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../Redux/store'
 
@@ -237,13 +237,18 @@ const SectionTwo = () => {
                 return
             }
             const response = await getDoctorStatus(storedDoctor.email)
+            const isGoogleLogin = localStorage.getItem("isGoogleLogin")
             console.log(response,'res')
             if(response.success){
                 const status = response.status
                 if(status === "approved"){
                     toast.success("Your request has been approved")
                     setTimeout(()=>{
+                      if(isGoogleLogin){
+                        navigate('/doctor/dashboard')
+                      }else{
                         navigate('/doctor/login')
+                      }
                     },1000)
                 }else if(status === "rejected"){
                     localStorage.removeItem('doctor')

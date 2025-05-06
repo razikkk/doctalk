@@ -1,4 +1,5 @@
 import { Doctor, IDoctor } from '../../Models/doctorModel';
+import { ISpeciality, speciality } from '../../Models/specialisationModel';
 import {IUser, User} from '../../Models/userModel'
 import redisClient from '../../config/redisClient';
 import { IUserRepository } from '../interface/IUserRepository';
@@ -40,9 +41,15 @@ export class userRepository extends BaseRepository<IUser> implements IUserReposi
                 await redisClient.del(email)
             }
 
-            async getAllUser(): Promise<IUser[]> {
+            async getAllUser(search:string,page:number,limit:number): Promise<{users:IUser[];totalPages:number;currentPage:number}> {
                 try {
-                    return await User.find({role:'user'})
+                    const filter = search ? {name:{$regex:search,$options:"i"},role:'user'} : {role:'user'}
+
+                    const totalUsers = await User.countDocuments(filter)
+                    const totalPages = Math.ceil(totalUsers/limit)
+                    const skip = (page-1) * limit
+                    const users =  await User.find(filter).skip(skip).limit(limit)
+                    return {users,totalPages,currentPage:page}
                 } catch (error:any) {
                     console.log(error.message)
                     throw new Error("failed to Fetch Users")
@@ -58,7 +65,12 @@ export class userRepository extends BaseRepository<IUser> implements IUserReposi
             }
             
             async findDoctors(): Promise<IDoctor[]> {
-                return await Doctor.find().populate('specialization','name')
+                return await Doctor.find({isActive:"approved",isBlocked:false}).populate('specialization','name')
+            }
+            async fetchSpecialization(): Promise<ISpeciality[]> {
+                const data =  speciality.find({isDelete:false})
+                console.log(data,'ddddddd')
+                return data
             }
 }
 

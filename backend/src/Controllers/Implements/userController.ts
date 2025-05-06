@@ -175,6 +175,7 @@ export class UserController implements IUserController {
         console.log(refreshToken)
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
+      
     }
   }
 
@@ -204,31 +205,13 @@ export class UserController implements IUserController {
     }
   }
 
-  // async verifyToken(
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction
-  // ): Promise<void> {
-  //   try {
-  //     const { token } = req.body;
-
-  //     if (!token) {
-  //       res.status(401).json({ valid: false, message: "No Token provided" });
-  //       return;
-  //     }
-  //     const result = await this.userService.verifyToken(token);
-  //     if (result.valid === false && result.isBlocked) {
-  //       res
-  //         .status(403)
-  //         .json({ valid: false, isBlocked: true, message: "user is blocked" });
-  //       return;
-  //     }
-  //     res.json(result);
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
-
+/**
+ * for description
+ * @param req 
+ * @param res 
+ * @param next 
+ * @returns 
+ */
   async findDoctors(
     req: Request,
     res: Response,
@@ -269,6 +252,19 @@ export class UserController implements IUserController {
       return
     } catch (error:any) {
       res.status(500).json({success:false,message:error.message})
+    }
+  }
+
+  async fetchSpecialization(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const specializationData = await this.userService.fetchSpecialization()
+      if(!specializationData){
+        return res.status(400).json({success:false,message:"specialization data is required"})
+      }
+      console.log(specializationData,'spec')
+      return res.status(200).json({success:true,message:"Specialization fetched",specializationData})
+    } catch (error:any) {
+      return res.status(500).json({success:false,message:error.message})
     }
   }
 }

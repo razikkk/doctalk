@@ -4,6 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { FaIdBadge, FaFileMedical } from "react-icons/fa";
 import { GrPrevious } from "react-icons/gr";
 import { TbStethoscope,TbStethoscopeOff } from "react-icons/tb";
+import CustomConfirmAlert from '../../Components/ConfirmAlert';
+import { Toaster, toast } from 'sonner';
 
 
 
@@ -33,6 +35,8 @@ const DoctorProfile = () => {
     const [loading,setLoading] = useState(false)
     const [showMedicalProof, setShowMedicalProof] = useState(false);
     const [showIdentityProof, setShowIdentityProof] = useState(false);
+    const [showDoctorAlert,setShowDoctorAlert] = useState<boolean>(false)
+    const [isDoctorBlocked,setIsDoctorBlocked] = useState<boolean>(false)
     const navigate = useNavigate()
 
     useEffect(()=>{
@@ -68,34 +72,47 @@ const DoctorProfile = () => {
         const response = await approveDoctor(doctorId,status)
         // console.log(response)
         if (response && response.success) {
-          alert(response.message || `Doctor ${status}`);
+          setTimeout(()=>{
+            toast.success(response.message || `Doctor ${status}`);
+          },1000)
           navigate('/admin/doctors');
       } else {
           alert(response?.message || "Operation failed");
       }
     }
 
-    const handleBlockAndUnblock = async()=>{
+    const handleBlockAndUnblock = ()=>{
+      if(!doctorId || !doctor) return
+        setIsDoctorBlocked(doctor?.isBlocked)
+        setShowDoctorAlert(true)
+      
+    }
+
+    const handleDoctorConfirm = async()=>{
      
       if(!doctorId) return 
-      const confirmMessage = confirm(
-        doctor?.isBlocked ? "Are you sure you want to unblock this doctor?" : "Are you sure you want to block this doctor?"
-      )
-      if(!confirmMessage) return //ppo cancel nekkanel ee function angott nirthaan
-      const newStatus = doctor?.isBlocked ? "unblock" : "block"
-      const response = await blockAndUnblockDoctor(doctorId)
-      if(response.success){
-        setDoctor((prev)=> prev ? {...prev,isBlocked:!prev.isBlocked} : null) //prev represents the current state of doctor before updating.
-        //{ ...prev } spreads all properties of prev into a new object.
-        // ppo prev null aanegil appo {...prev} will cause eror
-        
-
+      try {
+        const response = await blockAndUnblockDoctor(doctorId)
+        if(response.success){
+          setDoctor((prev)=> prev ? {...prev,isBlocked:!prev.isBlocked} : null) //prev represents the current state of doctor before updating.
+          //{ ...prev } spreads all properties of prev into a new object.
+          // ppo prev null aanegil appo {...prev} will cause eror
+        }
+      } catch (error:any) {
+        console.log(error.message)
+      }finally{
+        setShowDoctorAlert(false)
       }
+     
+    }
+    const handleModalCancel = ()=>{
+      setShowDoctorAlert(false)
     }
 
   return (
     
     <div className="max-w-5xl mx-auto bg-white p-8 rounded-xl shadow-md bg-gray-20 relative">
+      <Toaster/>
       {/* Doctor Info */}
       <GrPrevious onClick={()=>navigate('/admin/doctors')} className='absolute  right-[40px] text-[#157B7B] font-extrabold text-3xl cursor-pointer'/>
 
@@ -134,8 +151,8 @@ const DoctorProfile = () => {
       <div className="p-6 rounded-lg mt-6">
         <h2 className="text-xl font-semibold">Reviews</h2>
         <div className="mt-2 p-4 bg-white rounded-lg shadow-md ">
-          <p className="font-bold">Razik ⭐⭐⭐⭐⭐</p>
-          <p className="text-gray-600">Highly recommended, great doctor</p>
+          {/* <p className="font-bold">Razik ⭐⭐⭐⭐⭐</p> */}
+          <p className="text-gray-600">No reviews</p>
         </div>
       </div>
       <hr className='text-gray-200'/>
@@ -171,6 +188,15 @@ const DoctorProfile = () => {
       {doctor.isBlocked ? "Unblock" : "Block"}
     </button>
   )}
+  {
+    showDoctorAlert && (
+      <CustomConfirmAlert
+      isCurrentlyBlocked={isDoctorBlocked}
+      onConfirm={handleDoctorConfirm}
+      onCancel={handleModalCancel}
+      />
+    )
+  }
 </div>
       </div>
 

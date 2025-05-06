@@ -2,7 +2,8 @@ import axios from "axios";
 import { BaseUrls } from "../Routes/apiRoutes";
 import Cookies from "js-cookie";
 import store from "../Redux/store";
-import { adminlogout } from "../Redux/adminAuthSlice";
+import { adminlogout } from "../Redux/adminSlice/adminAuthSlice";
+import { adminEndpoints } from "../Routes/endPointUrl";
 
 const adminAPI = axios.create({
     baseURL:BaseUrls.admin,
@@ -32,7 +33,7 @@ adminAPI.interceptors.response.use(
          try {
             const role = localStorage.getItem('role')
             console.log('role')
-            const refreshResponse = await adminAPI.post('http://localhost:3000/api/admin/refreshToken',{role},{withCredentials:true})
+            const refreshResponse = await adminAPI.post(adminEndpoints.REFRESH_RESPONSE, {role},{withCredentials:true})
             console.log('poyalo')
             const newAdminAccessToken = refreshResponse.data.adminAccessToken
             Cookies.set("adminAccessToken",newAdminAccessToken)
@@ -42,14 +43,12 @@ adminAPI.interceptors.response.use(
          } catch (error:any) {
             console.log(error.message)
          }
+         Cookies.remove("adminAccessToken")
+            window.location.href='/admin/login'
          
          
-        }else{
-           store.dispatch(adminlogout())
-
+        }
            return Promise.reject(error)
-       }
-
     }
 )
 

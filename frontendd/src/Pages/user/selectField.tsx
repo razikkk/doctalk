@@ -31,6 +31,9 @@ const SelectField = () => {
         <button className="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:opacity-80 w-full" onClick={()=>navigate('/register')}>
           Sign Up as Patient
         </button>
+        <div className="text-right mt-4">
+        <p className="text-[#157B7B] text-xs font-medium">Powered by Doctalk</p>
+      </div>
       </div>
     </div>
   </div>

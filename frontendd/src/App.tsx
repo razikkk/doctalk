@@ -24,8 +24,12 @@ import Doctors from './Pages/admin/Doctors'
 import DoctorProfile from './Pages/admin/DoctorProfile'
 import DoctorDashboard from './Pages/doctor/DoctorDashboard'
 import DoctorProtectedRoute from './Components/DoctorProtectedRoute'
-import { Children } from 'react'
 import DoctorLayout from './Components/DoctorLayout'
+import DoctorProfiles from './Pages/doctor/DoctorProfiles'
+import Appointments from './Pages/admin/Appointments'
+import AppointmentDetails from './Pages/admin/AppointmentDetails'
+import DoctorDetails from './Pages/user/Doctors'
+import AppointmentsDetails from './Pages/doctor/AppointmentsDetails'
 function App() {
   
 
@@ -45,6 +49,8 @@ function App() {
 
       <Route element={<ProtectedRoute/>}>
       <Route path='/dashboard' element={<UserDashboard/>}/>
+      <Route path='/user/doctors' element={<DoctorDetails/>}/>
+      
       </Route>
 
       {/* unknown Routes */}
@@ -56,13 +62,14 @@ function App() {
 
       {/* adminProtectedRoutes */}
       <Route element={<AdminProtectedRoute/>}>
-        <Route path='/admin' element={<AdminLayout/>}>
-
+        <Route  element={<AdminLayout/>}>
         <Route path='/admin/dashboard' element={<Dashboard/>}/>
         <Route path='/admin/patients' element={<Patients/>}/>
         <Route path='/admin/specialities' element={<Specialities/>}/>
         <Route path='/admin/doctors' element={<Doctors/>}/>
         <Route path='/admin/doctors/:doctorId' element={<DoctorProfile/>}/>
+        <Route path='/admin/appointments' element={<Appointments/>}/>
+        <Route path='/admin/appointmentDetails' element={<AppointmentDetails/>} />
         </Route>
       </Route>
 
@@ -76,8 +83,9 @@ function App() {
       {/* doctor protectedRotues */}
       <Route element={<DoctorProtectedRoute/>}>
         <Route path='/doctor' element={<DoctorLayout/>}>
-
       <Route path='/doctor/dashboard' element={<DoctorDashboard/>}/>
+      <Route path='/doctor/profile' element={<DoctorProfiles/>}/>
+      <Route path='/doctor/appointments' element={<AppointmentsDetails/>}/>
         </Route>
 
       </Route>

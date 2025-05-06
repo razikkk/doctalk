@@ -21,10 +21,12 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
 import { userRepository } from "../Repositories/implements/userRepositories";
 import redisClient from "../config/redisClient";
+import { DoctorRepository } from "../Repositories/implements/doctorRepository";
 dotenv.config();
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN || "";
 const UserRepository = new userRepository();
+const doctorRepository = new DoctorRepository()
 
 export interface AuthRequest extends Request {
   user?: {
@@ -51,27 +53,58 @@ export const verifyToken = async (
     // if the token is valid it will returnu a object with iat and exp,userId,role (jwtpayload is a type)
     //it can be a string or a object(jwtpayload)
     const userId = decoded.userId as string;
+    const role = decoded.role as "user" | "admin" | "doctor"
     console.log(userId,"userd")
+    
+
+    if(role === "doctor"){
+      const doctor = await doctorRepository.findById(userId)
+      if(!doctor){
+        res.status(404).json({success:false,message:"Doctor not found"})
+        return
+      }
+      if(doctor.isBlocked){
+        res.status(403).json({success:false,message:"Doctor is blocked"})
+        return
+      }
+      if(doctor.isActive === "rejected"){
+        res.status(403).json({success:false,message:"Your application is rejected, Please contact support"})
+        return
+      }
+      if(doctor.isActive === "pending"){
+        res.status(403).json({success:false,messsage:"Your application is still under review. Please wait"})
+        return
+      }
+    }else{
+      const isBlockedInRedis = await redisClient.get(`blocked:${userId}`)
+      if(isBlockedInRedis === "true"){
+        res.status(403).json({success:false,message:"Your account is blocked by admin. Please contact support"})
+        return
+      }
+    
 
     const user = await UserRepository.findById(userId);
+    console.log(user,'blok')
     if (!user) {
       res.status(404).json({ valid: false, message: "User dont exists" });
       return;
     }
     if (user.isBlocked) {
-      await redisClient.set(`Blocked:${userId}`, "true");
+      await redisClient.set(`blocked:${userId}`, "true");
       res.status(403).json({ valid: false, message: "User is blocked" });
       return;
     } else {
-      await redisClient.del(`Blocked:${userId}`);
+      await redisClient.del(`blocked:${userId}`);
+      console.log("unblocked",)
     }
-    req.user = { userId, role: decoded.role };
+  }
+    req.user = { userId, role };
     next();
+  
   } catch (error:any) {
     if(error.name === 'TokenExpiredError'){
-      res.status(401).json({valid:false,message:"Token expird"})
+      res.status(401).json({valid:false,message:"Token expired"})
     }else{
-
       res.status(401).json({ valid: false, message: "Invalid or expired token" });
     }
   }

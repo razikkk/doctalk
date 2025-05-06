@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./userAuthSlice";
-import adminAuthReducer from "./adminAuthSlice";
-import specialityReducer from "./specialitySlice";
-import doctorReducer from "./doctorSlice";
-import doctorFormSlice from "./doctorFormSlice";
-import doctorFormSectionTwoSlice from "./doctorFormSectionTwoSlice";
+import authReducer from "./userSlice/userAuthSlice";
+import adminAuthReducer from "./adminSlice/adminAuthSlice";
+import specialityReducer from "./adminSlice/specialitySlice";
+import doctorReducer from "./doctorSlice/doctorSlice";
+import doctorFormSlice from "./doctorSlice/doctorFormSlice";
+import doctorFormSectionTwoSlice from "./doctorSlice/doctorFormSectionTwoSlice";
 
 import { persistReducer,persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";

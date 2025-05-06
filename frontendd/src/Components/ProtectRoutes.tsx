@@ -4,6 +4,7 @@ import { RootState } from "../Redux/store"
 
 const protectedRotues = ()=>{
     const isAuthenticated = useSelector((state:RootState)=>state.auth.isAuthenticated)
+
     return isAuthenticated ? <Outlet/> : <Navigate to={'/login'} replace/>
  }
 

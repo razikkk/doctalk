@@ -2,7 +2,8 @@ import axios from "axios";
 import { BaseUrls } from "../Routes/apiRoutes";
 import Cookies from "js-cookie";
 import store from "../Redux/store";
-import { logout } from "../Redux/doctorSlice";
+import { logout } from "../Redux/doctorSlice/doctorSlice";
+import { doctorEndpoints } from "../Routes/endPointUrl";
 
 const doctorApi = axios.create({
     baseURL:BaseUrls.doctor,
@@ -12,7 +13,7 @@ const doctorApi = axios.create({
 doctorApi.interceptors.request.use(
     (config)=>{
         const token = Cookies.get("doctorAccessToken")
-        console.log(token,'f')
+        console.log(token,'jjf')
         if(token){
             config.headers['Authorization'] = `Bearer ${token}`
         }
@@ -31,20 +32,23 @@ doctorApi.interceptors.response.use(
 
     async(error)=>{
         const originalRequest = error.config
-
+        console.log(error.response.status,'status')
         if(error.response.status === 401 && !originalRequest._retry){
             originalRequest._retry = true
 
             try {
                 const role = localStorage.getItem('role')
-                const refreshResponse = await doctorApi.post('http://localhost:3000/api/doctor/refreshToken',{role},{withCredentials:true})
-                const newDoctorAccessToken = refreshResponse.data.doctorRefreshToken
-                console.log("dddfsa43")
+                console.log(role,'rlee')
+                const refreshResponse = await doctorApi.post(doctorEndpoints.REFRESH_RESPONSE,{role},{withCredentials:true})
+                const newDoctorAccessToken = refreshResponse.data.doctorAccessToken
+                console.log(refreshResponse.data,'data')
+                // console.log(newDoctorAccessToken,'nwe access')
+                // console.log("dddfsa43")
                 Cookies.set("doctorAccessToken",newDoctorAccessToken)
+                // console.log(Cookies.get("doctorAccessToken"))
+                // console.log("kaznj")
 
-                console.log("kaznj")
-
-                error.config['Authorization'] = `Bearer ${newDoctorAccessToken}`
+                error.config.headers['Authorization'] = `Bearer ${newDoctorAccessToken}`
                 return doctorApi(error.config)
             } catch (error) {
                 

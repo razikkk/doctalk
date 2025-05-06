@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { logout } from '../../Redux/doctorSlice'
 import { useNavigate, useParams } from 'react-router-dom'
-import Cookies from 'js-cookie'
 import DoctorProfileCard from '../../Components/DoctorCardProfile'
-import profile from '../../assets/doctorProfile.jpeg'
-import { getDoctorProfile } from '../../utils/doctorAuth'
+import { addSlots, getDoctorProfile } from '../../utils/doctorAuth'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../Redux/store'
+import { MdAssignmentAdd } from "react-icons/md";
+import AddSlotModal from '../../Components/AddSlotModal'
+
 
 interface Doctor{
   _id:string,
@@ -18,6 +17,9 @@ const DoctorDashboard = () => {
 
     const[doctorProfile,setDoctorProfile] = useState<Doctor>()
     const doctorId = useSelector((state:RootState)=>state.doctorAuth.doctorId)
+    const [isModalOpen,setIsModalOpen] = useState(false)
+   const navigate = useNavigate()
+    
 
   useEffect(()=>{
    
@@ -32,16 +34,27 @@ const DoctorDashboard = () => {
       console.log(response.doctor,'dd')
       } catch (error:any) {
         console.log(error.message)
+        if(error.response.status === 403){
+          navigate('/doctor/login')
+        }
       }
       
     }
     fetchDoctorProfile()
   },[doctorId])
     console.log(doctorProfile,'doc')
+
+   
+
   return (
     <div className="p-4">
     {/* Dashboard title */}
+    <div className='flex justify-end'>
+
+    <MdAssignmentAdd className='text-2xl' onClick={()=>setIsModalOpen(true)}/>
+    </div>
     <h1 className="text-2xl font-bold mb-4">Welcome to DocTalk</h1>
+
 
     {/* Right-aligned Doctor Profile Card */}
     <div className="flex justify-end">
@@ -51,6 +64,7 @@ const DoctorDashboard = () => {
         />
       </div>
     </div>
+    <AddSlotModal isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}/>
   </div>
   )
 }

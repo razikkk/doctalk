@@ -1,5 +1,6 @@
 import {  Document, Model } from "mongoose";
 import { IBaseRepository } from "../interface/IBaseRepository";
+//inheritance
 
 export class BaseRepository<T extends Document> implements IBaseRepository<T>{
     protected model:Model<T>
@@ -21,7 +22,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
     async findAll(): Promise<T[]> {
         return await this.model.find().exec()
     }
-
+    
     async update(id: string, data: Partial<T>): Promise<T | null> {
       return await this.model.findByIdAndUpdate(id,data,{new:true}).exec()  
     }

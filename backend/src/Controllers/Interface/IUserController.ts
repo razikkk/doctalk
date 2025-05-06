@@ -42,4 +42,5 @@ export interface IUserController {
     next: NextFunction
   ): Promise<void | Response>;
   logout(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  fetchSpecialization(req:Request,res:Response,next:NextFunction):Promise<void | Response>
 }

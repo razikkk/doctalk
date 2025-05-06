@@ -3,7 +3,7 @@ import doctor from "../../assets/adminDoctor.jpeg";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { adminSignIn } from "../../utils/adminAuth";
-import { adminLogin } from "../../Redux/adminAuthSlice";
+import { adminLogin } from "../../Redux/adminSlice/adminAuthSlice";
 import Cookies from "js-cookie";
 
 const AdminLogin = () => {
@@ -18,9 +18,12 @@ const AdminLogin = () => {
   useEffect(()=>{
     const adminToken = Cookies.get("adminAccessToken")
     if(adminToken){
-        navigate('/admin/dashboard',{replace:true})
+      setTimeout(()=>{
+        
+        navigate('/admin/dashboard')
+      },10)
     }
-  },[navigate])
+  },[])
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -72,6 +75,9 @@ const AdminLogin = () => {
             <button type="submit" className="w-full px-4 py-2 bg-[#157B7B] text-white font-bold rounded-lg hover:opacity-80">
               Login
             </button>
+            <div className="text-right mt-4">
+        <p className="text-[#157B7B] text-xs font-medium">Powered by Doctalk</p>
+      </div>
           </form>
         </div>
       </div>

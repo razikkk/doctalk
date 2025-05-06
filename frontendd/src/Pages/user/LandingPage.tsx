@@ -17,7 +17,8 @@ type Doctor = {
     name:string
   }
   imageUrl:string,
-  experience:number
+  experience:number,
+  gender:string
 }
 
 const LandingPage = () => {
@@ -26,29 +27,29 @@ const LandingPage = () => {
     const [doctors,setDoctors] = useState<Doctor[]>([])
     const navigate = useNavigate()
 
-    useEffect(()=>{
-        const token = localStorage.getItem("accessToken")
+    // useEffect(()=>{
+    //     const token = localStorage.getItem("accessToken")
 
-        if(token){
-            fetch('http://localhost:3000/api/users/verify-token',{
-                method:'POST',
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({token})
-            })
-            .then((res)=>res.json())
-            .then((data:any)=>{
-                console.log(data,'dfd')
-                if(data.valid){
-                    navigate('/dashboard')
-                }else{
-                    localStorage.removeItem("accessToken")
-                    setIsLogined(false)
-                }
-                console.log("state changed",setIsLogined)
-            })
-            .catch(()=>setIsLogined(false))
-        }
-    },[])
+    //     if(token){
+    //         fetch('http://localhost:3000/api/users/verify-token',{
+    //             method:'POST',
+    //             headers:{"Content-Type":"application/json"},
+    //             body:JSON.stringify({token})
+    //         })
+    //         .then((res)=>res.json())
+    //         .then((data:any)=>{
+    //             console.log(data,'dfd')
+    //             if(data.valid){
+    //                 navigate('/dashboard')
+    //             }else{
+    //                 localStorage.removeItem("accessToken")
+    //                 setIsLogined(false)
+    //             }
+    //             console.log("state changed",setIsLogined)
+    //         })
+    //         .catch(()=>setIsLogined(false))
+    //     }
+    // },[])
 
     
     //sliding carousel

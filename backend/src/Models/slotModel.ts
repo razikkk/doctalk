@@ -1,24 +1,28 @@
-import mongoose, { ObjectId, Schema } from "mongoose";
+import mongoose, { ObjectId, Schema, model } from "mongoose";
 
 export interface ISlot {
   doctorId: ObjectId;
-  startTime: Date;
-  endTime: Date;
+  specialization:ObjectId
+  days:Date
+  startTime: string;
+  endTime: string;
   availableSlot: number;
-  avgConsultingTime: number;
+  consultingFees:number
   createdAt: Date;
   updatedAt: Date;
 }
 
 const slotSchema = new Schema<ISlot>(
   {
-    doctorId: { type: mongoose.Types.ObjectId, ref: "Doctor", required: true },
-    startTime: { type: Date, required: true },
-    endTime: { type: Date, required: true },
-    availableSlot: { type: Number, required: true },
-    avgConsultingTime: { type: Number, required: true },
+    doctorId: { type: mongoose.Types.ObjectId, ref: "Doctor" },
+    specialization:{type:mongoose.Types.ObjectId,ref:"Specaility"},
+    days:{type:Date},
+    startTime: { type: String },
+    endTime: { type: String},
+    availableSlot: { type: Number},
+    consultingFees:{type:Number}
   },
   { timestamps: true }
 );
 
-export default mongoose.model<ISlot>("Slot", slotSchema);
+export const Slot =  model<ISlot>("Slot", slotSchema);

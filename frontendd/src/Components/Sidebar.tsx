@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { MouseEvent, ReactNode } from "react";
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
-import { adminlogout } from "../Redux/adminAuthSlice";
+import { adminlogout } from "../Redux/adminSlice/adminAuthSlice";
 
 type SidebarsTypes = {
   text:string,

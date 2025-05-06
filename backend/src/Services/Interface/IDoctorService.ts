@@ -6,6 +6,8 @@ import {
   IRegisterType,
   googleUserInput,
 } from "../../type/type";
+import { ISlot } from "../../Models/slotModel";
+import { ISpeciality } from "../../Models/specialisationModel";
 
 export interface IDoctorService {
   register(
@@ -41,4 +43,8 @@ export interface IDoctorService {
   findDoctorByEmail(email:string):Promise<IDoctor | null>
   createDoctor(doctorData:googleUserInput):Promise<IDoctor>
   getDoctorProfile(doctorId:string):Promise<IDoctor | null>
+  addSlots(slotData:ISlot):Promise<ISlot>
+  editDoctorProfile(doctorId:string,doctorData:Partial<IDoctor>):Promise<IDoctor | null>
+  getAllSpecialities(): Promise<ISpeciality[]>;
+  fetchDoctorAppointment(doctorId:string):Promise<ISlot[]>
 }

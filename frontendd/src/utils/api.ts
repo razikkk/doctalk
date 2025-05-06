@@ -1,8 +1,8 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { BaseUrls } from '../Routes/apiRoutes'
-import store from '../Redux/store'
-import { login } from '../Redux/userAuthSlice'
+import { userEndpoints } from '../Routes/endPointUrl'
+
 
 const API = axios.create({
     baseURL:BaseUrls.user,
@@ -39,7 +39,7 @@ API.interceptors.response.use(
             try {
                 const role = localStorage.getItem('role')
                 console.log(role,'role')
-                const refreshResponse = await API.post('http://localhost:3000/api/users/refreshToken',
+                const refreshResponse = await API.post(userEndpoints.REFRESH_RESPONSE,
                     {role},
                     {withCredentials:true}
                 )

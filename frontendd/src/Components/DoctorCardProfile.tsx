@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type DoctorProfileCardProps = {
   name: string;
@@ -13,6 +14,7 @@ type Doctor ={
 
 const DoctorProfileCard: React.FC<Doctor> = ({doctor}) => {
     console.log(doctor)
+    const navigate = useNavigate()
 //   const maxAppointments = totalAppointments;
 //   const finishedPercentage = (finished / maxAppointments) * 100;
 //   const pendingPercentage = (pending / maxAppointments) * 100;
@@ -32,8 +34,8 @@ const DoctorProfileCard: React.FC<Doctor> = ({doctor}) => {
           </div>
         )}
        
-        <h2 className="text-lg font-semibold">{doctor?.name || "hy"}</h2>
-        <a href="#" className="text-sm text-teal-600 underline">
+        <h2 className="text-lg font-semibold">Dr {doctor?.name || "hy"}</h2>
+        <a onClick={()=>navigate('/doctor/profile')} className="text-sm text-teal-600 underline cursor-pointer">
           view profile
         </a>
       </div>

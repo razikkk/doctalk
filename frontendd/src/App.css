@@ -1,4 +1,4 @@
-@import "tailwindcss";
+ @import "tailwindcss";
 
 /* Create a star shape using clip-path */
 .clip-star {
@@ -26,6 +26,7 @@
   opacity: 1;
   transform: translateY(0); /* Slide up to original position */
 }
+
 
 
 

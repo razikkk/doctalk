@@ -1,4 +1,6 @@
 import { Doctor, IDoctor } from "../../Models/doctorModel";
+import  { ISlot, Slot } from "../../Models/slotModel";
+import { ISpeciality, speciality } from "../../Models/specialisationModel";
 import { IDoctorRegisterType } from "../../type/type";
 import { IDoctorRepository } from "../interface/IDoctorRepository";
 import { BaseRepository } from "./baseRepository";
@@ -53,6 +55,23 @@ export class DoctorRepository extends BaseRepository<IDoctor> implements IDoctor
     }
 
     async getDoctorProfile(doctorId: string): Promise<IDoctor | null> {
-        return await this.findById(doctorId)
+        return await Doctor.findById(doctorId).populate("specialization")
     }
+    async findById(userId: string): Promise<IDoctor | null> {
+        return await Doctor.findById(userId)
+    }
+    async addSlots(slotData: ISlot): Promise<ISlot> {
+        console.log(slotData,'dd')
+        const newSlot =  await Slot.create(slotData)
+        return newSlot.toObject()
+    }
+    async editDoctorProfile(doctorId:string,doctorData: Partial<IDoctor>): Promise<IDoctor | null> {
+        return await Doctor.findByIdAndUpdate(doctorId,doctorData,{new:true})
+    }
+    async getAllSpecialities(): Promise<ISpeciality[]> {
+        return await speciality.find({isDelete:false})
+    }
+   async fetchDoctorAppointment(doctorId:string): Promise<ISlot[]> {
+       return await Slot.find({doctorId})
+   }
 }
