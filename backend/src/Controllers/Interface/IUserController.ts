@@ -43,4 +43,8 @@ export interface IUserController {
   ): Promise<void | Response>;
   logout(req:Request,res:Response,next:NextFunction):Promise<void | Response>
   fetchSpecialization(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  fetchDoctorAppointment(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  bookAppointment(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  createOrder(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  captureOrder(req:Request,res:Response,next:NextFunction):Promise<void | Response>
 }

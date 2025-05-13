@@ -20,6 +20,14 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['Authorization']
   };
+ 
+  app.use((req, res, next) => {
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:;"
+    );
+    next();
+  });
 app.use(cors(corsOptions)) 
 
 app.use(express.json())

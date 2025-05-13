@@ -23,6 +23,7 @@ export interface IDoctor extends Document {
   role: "doctor";
   otp: string;
   otpExpires: Date;
+  slot?:ObjectId
   isActive: "pending" | "approved" | "rejected";
   isBlocked: boolean;
   createdAt: Date;
@@ -63,6 +64,7 @@ const doctorSchema = new Schema<IDoctor>(
     isBlocked: { type: Boolean, default: false },
     otp: { type: String },
     otpExpires: { type: Date },
+    slot:[{type:mongoose.Types.ObjectId, ref:"Slot"}],
     step: { type: Number, default: 0 },
   },
   { timestamps: true }

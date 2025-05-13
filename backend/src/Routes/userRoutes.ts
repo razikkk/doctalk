@@ -5,11 +5,15 @@ import { userService } from "../Services/Implements/userServices";
 import { verifyToken } from "../middleware/authMiddleware";
 import { authorizeRole } from "../middleware/roleBasedAuthorization";
 import limitter from "../middleware/RateLimitter";
+import { appointemntRepository } from "../Repositories/implements/appointment";
+import { paymentRepository } from "../Repositories/implements/paymentRepository";
 
 const router = express.Router()
 
 const UserRepository = new userRepository()
-const UserService = new userService(UserRepository)
+const AppointemntRepository = new appointemntRepository()
+const PayementRepository = new paymentRepository()
+const UserService = new userService(UserRepository,AppointemntRepository,PayementRepository)
 const userController = new UserController(UserService)
 
 // router.post('/register',(req,res,next)=>userController.register(req,res,next))
@@ -36,4 +40,16 @@ router.post('/logout',logout)
 
 const fetchSpecialization = userController.fetchSpecialization.bind(userController) as RequestHandler
 router.get('/specialization',fetchSpecialization)
+
+const fetchDoctorAppointment = userController.fetchDoctorAppointment.bind(userController) as RequestHandler
+router.get('/appointments',fetchDoctorAppointment)
+
+const bookAppointment = userController.bookAppointment.bind(userController) as RequestHandler
+router.post('/book-appointment',bookAppointment)
+
+const createPaypalOrder = userController.createOrder.bind(userController) as RequestHandler
+router.post('/create-paypal-order',createPaypalOrder)
+
+const capturePaypalOrder = userController.captureOrder.bind(userController) as RequestHandler
+router.post('/capture-paypal-order',capturePaypalOrder)
 export default router

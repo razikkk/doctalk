@@ -95,3 +95,39 @@ export const fetchSpecialization = async()=>{
         console.log(error.message)
     }
 }
+
+export const fetchDoctorAppointment = async()=>{
+    try {
+        const response = await api.get(userEndpoints.APPOINTMENTS)
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+
+export const bookAppointment = async(appointmentData:any)=>{
+    try {
+        const response = await api.post(userEndpoints.BOOK_APPOINTMENT,appointmentData)
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+
+export const createPaypalOrder = async(amount:string)=>{
+    try {
+        const response = await api.post(userEndpoints.CREATE_PAYPAL_ORDER,{amount})
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+
+export const capturePaypalOrder = async(orderID:string)=>{
+    try {
+        const response = await api.post(userEndpoints.CAPTURE_PAYPAL_ORDER,{orderID})
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}

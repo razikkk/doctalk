@@ -1,4 +1,5 @@
 import { Doctor, IDoctor } from '../../Models/doctorModel';
+import { ISlot, Slot } from '../../Models/slotModel';
 import { ISpeciality, speciality } from '../../Models/specialisationModel';
 import {IUser, User} from '../../Models/userModel'
 import redisClient from '../../config/redisClient';
@@ -71,6 +72,15 @@ export class userRepository extends BaseRepository<IUser> implements IUserReposi
                 const data =  speciality.find({isDelete:false})
                 console.log(data,'ddddddd')
                 return data
+            }
+            async fetchDoctorAppointment(): Promise<ISlot[]> {
+                return await Slot.find().populate({
+                    path:'doctorId',
+                    populate:{
+                        path:'specialization',
+                        select:'name'
+                    }
+                })
             }
 }
 

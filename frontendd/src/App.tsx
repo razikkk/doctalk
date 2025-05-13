@@ -30,6 +30,7 @@ import Appointments from './Pages/admin/Appointments'
 import AppointmentDetails from './Pages/admin/AppointmentDetails'
 import DoctorDetails from './Pages/user/Doctors'
 import AppointmentsDetails from './Pages/doctor/AppointmentsDetails'
+import AppointmentCard from './Pages/user/AppointementsPage'
 function App() {
   
 
@@ -50,6 +51,7 @@ function App() {
       <Route element={<ProtectedRoute/>}>
       <Route path='/dashboard' element={<UserDashboard/>}/>
       <Route path='/user/doctors' element={<DoctorDetails/>}/>
+      <Route path='/users/appointments/:doctorId' element={<AppointmentCard/>}/>
       
       </Route>
 

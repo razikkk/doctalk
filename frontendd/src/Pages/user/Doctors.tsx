@@ -9,11 +9,13 @@ import Footer from '../../Components/UserFooter'
 import { Pagination, Typography } from '@mui/material'
 import { useDispatch } from 'react-redux'
 import { logout } from '../../Redux/userSlice/userAuthSlice'
+import { useNavigate } from 'react-router-dom'
 
 
 
 const DoctorDetails = () => {
   interface IDoctor {
+    _id:string
     name: string 
     imageUrl: string
     specialization: ISpecialization

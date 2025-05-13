@@ -22,7 +22,7 @@ export type UserType = {
     updatedAt?: Date;
   };
 
-export type ILoginType={
+export type ILoginTypeDTO={
     accessToken:string,
     refreshToken:string,
     userData: IUser,

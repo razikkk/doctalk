@@ -1,15 +1,18 @@
+import { IAppointment } from "../../Models/appointmentModel";
 import { IDoctor } from "../../Models/doctorModel";
+import { IPayment } from "../../Models/paymentModel";
+import { ISlot } from "../../Models/slotModel";
 import { ISpeciality } from "../../Models/specialisationModel";
 import { IUser } from "../../Models/userModel";
 import {
-  ILoginType,
+  ILoginTypeDTO,
   IRegisterType,
   IUserInput,
   googleUserInput,
 } from "../../type/type";
 
 export interface IUserService {
-  login(email: string, password: string, isAdmin: boolean): Promise<ILoginType>;
+  login(email: string, password: string, isAdmin: boolean): Promise<ILoginTypeDTO>;
   register(
     name: string,
     email: string,
@@ -35,4 +38,15 @@ export interface IUserService {
   // refreshToken():Promise<string>
   findDoctor(): Promise<IDoctor[]>;
   fetchSpecialization():Promise<ISpeciality[]>
+  fetchDoctorAppointment():Promise<ISlot[]>
+  createAppointment(appointmentData:Partial<IAppointment>):Promise<IAppointment>
+  getAppointmentById(appointmentId:string):Promise<IAppointment | null>
+  createPayment(paymentData:Partial<IPayment>):Promise<IPayment>
+  updatePaymentWithAppointment(paymentId:string,appointmentId:string):Promise<IPayment | null>
+  decreaseAvailableSlot(slotId:string):Promise<boolean>
+
+  //paypal
+  createPaypalOrder(amount:string):Promise<string>
+  capturePaypalOrder(orderID:string):Promise<any>
+
 }

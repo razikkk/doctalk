@@ -24,19 +24,17 @@ const AppointmentDetails = () => {
     const formatTimeFor12Hour = (timeString: string) => {
         if (!timeString) return "";
         
-        // If the time is already in format like "3:54pm", return it as is
         if (timeString.includes('am') || timeString.includes('pm')) {
             return timeString;
         }
         
-        // Otherwise, try to parse it
         try {
             const [hours, minutes] = timeString.split(":");
             const date = new Date();
             date.setHours(parseInt(hours));
             date.setMinutes(parseInt(minutes));
             
-            // Format as h:mmam/pm without space between time and am/pm
+            
             const formattedHour = date.getHours() % 12 || 12;
             const formattedMinutes = date.getMinutes().toString().padStart(2, '0');
             const period = date.getHours() >= 12 ? 'pm' : 'am';
@@ -44,7 +42,7 @@ const AppointmentDetails = () => {
             return `${formattedHour}:${formattedMinutes}${period}`;
         } catch (error) {
             console.error("Error formatting time:", timeString);
-            return timeString; // Return original string if parsing fails
+            return timeString; 
         }
     };
 
@@ -103,7 +101,6 @@ const AppointmentDetails = () => {
 
     return (
         <div className="max-w-5xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-md relative">
-            {/* Back Button */}
             <button
                 onClick={() => navigate('/admin/appointments')}
                 className="absolute right-6 top-6 text-[#157B7B] hover:text-[#0d5656] transition-colors"
@@ -125,7 +122,6 @@ const AppointmentDetails = () => {
             </p>
             </div>
 
-            {/* Doctor Info */}
             {firstDoctor && (
                 <div className="mt-6 mb-6">
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">

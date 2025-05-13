@@ -22,6 +22,7 @@ interface ISlot {
 }
 
 const AppointmentsDetails = () => {
+
     
     const formatTimeFor12Hour = (timeString: string) => {
         if (!timeString) return "";
@@ -53,6 +54,8 @@ const AppointmentsDetails = () => {
     const [appointments, setAppointments] = useState<ISlot[]>([])
     const navigate = useNavigate()
     const doctorId = useSelector((state:RootState)=>state.doctorAuth.doctorId)
+    const [showEditModal,setShowEditModal] = useState(false)
+    const [editForm,setEditForm] = useState<ISlot[] | null>(null)
 
     useEffect(() => {
         const fetchAppointments = async () => {
@@ -61,6 +64,7 @@ const AppointmentsDetails = () => {
                 console.log(response)
                 if (response.success) {
                     setAppointments(response.slotData)
+                    setEditForm(response.slotData)
                 }
             } catch (error: any) {
                 console.log(error.message)
@@ -88,6 +92,7 @@ const AppointmentsDetails = () => {
     }, {})
 
     // const firstDoctor = appointments[0]?.doctorId
+
 
 
     return (
@@ -126,14 +131,29 @@ const AppointmentsDetails = () => {
                             <h3 className="text-lg font-semibold text-[#157B7B] mb-4 px-1">{day}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 
-                                {groupedByDay[day].map((appointment, idx) => (
+                                {groupedByDay[day].map((appointment, idx) => {
+                                    {[...groupedByDay[day]].sort((a,b)=>new Date(b.startTime).getTime()-new Date(a.startTime).getTime())
+
+                                    
+                                    const today = new Date()
+                                    today.setHours(0,0,0,0)
+                                    const slotDate = new Date(appointment.days)
+                                    slotDate.setHours(0,0,0,0)
+                                    const isPast = slotDate<today
+                                    return (
                                     <div
                                         key={idx}
-                                        className="relative min-h-[200px] border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow duration-200"
+                                        className={`relative min-h-[200px]   rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+                                            isPast ? ' bg-gray-300 grayscale opacity-60 pointer-events-none' : ''
+                                        }`}
                                     >
-                                                     <Edit size={20} 
-                            className="absolute top-5 right-5 text-[#157B7B] text-xl cursor-pointer" 
-                        />
+                            {!isPast && (
+                <Edit
+                    size={20}
+                    className="absolute top-5 right-5 text-[#157B7B] text-xl cursor-pointer"
+                    onClick={()=>{setShowEditModal(true);setEditForm(appointment)}}
+                />
+            )}
                                         <div className="space-y-2 pt-7">
                                                 
                                             <p className="flex justify-between">
@@ -158,14 +178,111 @@ const AppointmentsDetails = () => {
                                             </p>
                                         </div>
                                     </div>
-                                ))}
+                                    )}
+})}
                             </div>
                         </div>
+                        
                     ))
                 ) : (
                     <p className="text-gray-500 ">No appointments scheduled</p>
                 )}
             </div>
+
+
+
+            {showEditModal && (
+  <div className="fixed inset-0 flex backdrop-brightness-30 items-center justify-center p-4 z-50">
+    <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+      <h2 className="text-xl font-semibold mb-4">Edit Appointment Details</h2>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          // handle submit logic here
+        }}
+      >
+        {/* Date */}
+
+        {/* Start Time */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Start Time</label>
+          <input
+            type="time"
+            name="startTime"
+            value={editForm?.startTime}
+            onChange={(e) => setEditForm((prev) => ({ ...prev!, startTime: e.target.value }))}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#157B7B] focus:outline-none focus:ring-1 focus:ring-[#157B7B]"
+          />
+          <p>{editForm?.startTime}</p>
+        </div>
+
+        {/* End Time */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">End Time</label>
+          <input
+            type="time"
+            name="endTime"
+            value={editForm?.endTime || ''}
+            onChange={(e) => setEditForm((prev) => ({ ...prev!, endTime: e.target.value }))}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#157B7B] focus:outline-none focus:ring-1 focus:ring-[#157B7B]"
+          />
+        </div>
+
+        {/* Token Count */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Token Count</label>
+          <input
+            type="number"
+            name="availableSlot"
+            value={editForm?.availableSlot || 0}
+            onChange={(e) =>
+              setEditForm((prev) => ({
+                ...prev!,
+                availableSlot: parseInt(e.target.value) || 0,
+              }))
+            }
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#157B7B] focus:outline-none focus:ring-1 focus:ring-[#157B7B]"
+          />
+        </div>
+
+        {/* Consultation Fee */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Consultation Fee (₹)</label>
+          <input
+            type="number"
+            name="consultingFees"
+            value={editForm?.consultingFees || 0}
+            onChange={(e) =>
+              setEditForm((prev) => ({
+                ...prev!,
+                consultingFees: parseInt(e.target.value) || 0,
+              }))
+            }
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#157B7B] focus:outline-none focus:ring-1 focus:ring-[#157B7B]"
+          />
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-4 mt-6">
+          <button
+            type="button"
+            onClick={() => setShowEditModal(false)}
+            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 text-white bg-[#157B7B] rounded-md hover:bg-[#0d5656] transition-colors"
+          >
+            Save Appointment
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
         </div>
     )
 }

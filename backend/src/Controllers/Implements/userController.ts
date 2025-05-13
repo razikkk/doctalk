@@ -267,4 +267,75 @@ export class UserController implements IUserController {
       return res.status(500).json({success:false,message:error.message})
     }
   }
+
+  async fetchDoctorAppointment(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const appointmentData = await this.userService.fetchDoctorAppointment()
+      if(!appointmentData){
+        return res.status(400).json({success:false,messsage:"can't fetch appointment data"})
+      }
+      console.log(appointmentData,'data')
+      return res.status(200).json({success:true,message:"Fetched appointment data",appointmentData})
+    } catch (error:any) {
+      return res.status(500).json({success:false,message:error.message})
+    }
+  }
+
+  async bookAppointment(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const {userId,doctorId,slotId,tokenNumber,amount} = req.body
+      const availableSlots = await this.userService.decreaseAvailableSlot(slotId)
+      if(!availableSlots){
+        return res.status(400).json({success:false,message:"No available slots"})
+      }
+
+    const payment = await this.userService.createPayment({
+      userId,
+      doctorId,
+      amount,
+      status:'paid'
+    })
+
+    const appointment = await this.userService.createAppointment({
+      userId,
+      doctorId,
+      slotId,
+      tokenNumber,
+      paymentId:payment._id,
+      status:'scheduled'
+    })
+
+    
+    await this.userService.updatePaymentWithAppointment(payment._id.toString(),appointment._id.toString())
+
+    return res.status(201).json({success:true,message:"appointment created",appointment})
+    } catch (error:any) {
+      console.log(error.message)
+      return res.status(500).json({success:false,message:error.message})
+    }
+  }
+
+  async createOrder(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const {amount} = req.body
+      const orderID = await this.userService.createPaypalOrder(amount)
+      res.status(200).json({success:true,orderID})
+      return
+    } catch (error:any) {
+      console.log(error.message)
+      res.status(500).json({success:false,message:error.message})
+    }
+  }
+
+  async captureOrder(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const {orderID} = req.body
+      const result = await this.userService.capturePaypalOrder(orderID)
+      res.status(200).json({success:true,result})
+      return 
+    } catch (error:any) {
+      console.log(error.message)
+      res.status(500).json({success:false,message:error.message})
+    }
+  }
 }

@@ -108,7 +108,6 @@ const DoctorProfiles = () => {
       if (!editForm) return;
       
       if (name === 'specialization') {
-        // Handle nested specialization object
         setEditForm({
           ...editForm,
           specialization: {
@@ -117,7 +116,6 @@ const DoctorProfiles = () => {
           }
         });
       } else {
-        // Handle regular fields
         setEditForm({
           ...editForm,
           [name]: name === 'experience' ? (parseInt(value) || 0) : value

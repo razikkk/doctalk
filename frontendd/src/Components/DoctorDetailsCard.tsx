@@ -1,7 +1,9 @@
 import React from 'react';
 import { Star, MessageSquare, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 type doctor ={
+  _id: string;
   name:string,
   imageUrl:string,
   hospital:string,
@@ -16,6 +18,9 @@ interface DoctorCardProps {
 }
 
 const DoctorCardDetails: React.FC<DoctorCardProps> = ({ doctor }) => {
+  
+    const navigate = useNavigate()
+
   return (
 <div className="relative bg-white rounded-xl shadow-md flex flex-col w-[350px] h-[350px] overflow-hidden hover:shadow-lg transition-transform hover:translate-y-[-4px]">
 <button className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow">
@@ -40,7 +45,7 @@ const DoctorCardDetails: React.FC<DoctorCardProps> = ({ doctor }) => {
     <p className="text-sm font-medium text-center" style={{ color: "rgba(12, 11, 62, 0.73)" }}>Experience:  <span>{doctor.experience} yrs</span></p>
 
     <div className="flex justify-between items-center mt-4">
-      <button className="px-3 py-1 bg-teal-700 text-white text-sm rounded hover:bg-teal-800 transition w-full">
+      <button className="px-3 py-1 bg-teal-700 text-white text-sm rounded hover:bg-teal-800 transition w-full" onClick={()=>navigate(`/users/appointments/${doctor._id}`)}>
         Book Now
       </button>
     </div>

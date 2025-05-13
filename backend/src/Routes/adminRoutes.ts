@@ -8,11 +8,15 @@ import uploads from '../config/multer'
 import { verifyToken } from '../middleware/authMiddleware'
 import { authorizeRole } from '../middleware/roleBasedAuthorization'
 import limitter from '../middleware/RateLimitter'
+import { appointemntRepository } from '../Repositories/implements/appointment'
+import { paymentRepository } from '../Repositories/implements/paymentRepository'
 
 const router = express.Router()
 const UserRepository = new userRepository()
 const adminRepository = new AdminRepository()
-const UserService = new userService(UserRepository) 
+const AppointemntRepository = new appointemntRepository()
+const PaymentRepository = new paymentRepository()
+const UserService = new userService(UserRepository,AppointemntRepository,PaymentRepository) 
 const adminService = new AdminService(adminRepository)
 const adminController = new AdminController(UserService,adminService)
 
@@ -26,22 +30,22 @@ const getAllSpecialities = adminController.getAllSpecialities.bind(adminControll
 router.get('/specialities',verifyToken,authorizeRole(['admin']),getAllSpecialities)
 
 const addSpecialities = adminController.addSpecialities.bind(adminController) as RequestHandler
-router.post('/addSpeciality',verifyToken,authorizeRole(['admin']),uploads.single("image"),addSpecialities)
+router.post('/add-speciality',verifyToken,authorizeRole(['admin']),uploads.single("image"),addSpecialities)
 
 const updatedSpeciality = adminController.updateSpecialities.bind(adminController) as RequestHandler
-router.put('/updateSpeciality/:id',verifyToken,authorizeRole(['admin']),uploads.single("image"),updatedSpeciality)
+router.put('/update-speciality/:id',verifyToken,authorizeRole(['admin']),uploads.single("image"),updatedSpeciality)
 
 const deleteSpecialities = adminController.deleteSpecialities.bind(adminController) as RequestHandler
-router.patch('/deleteSpeciality/:id',verifyToken,authorizeRole(['admin']),deleteSpecialities)
+router.patch('/delete-speciality/:id',verifyToken,authorizeRole(['admin']),deleteSpecialities)
 
 const restoreSpecialities = adminController.restoreSpecialities.bind(adminController) as RequestHandler
-router.patch('/restoreSpeciality/:id',verifyToken,authorizeRole(['admin']),restoreSpecialities)
+router.patch('/restore-speciality/:id',verifyToken,authorizeRole(['admin']),restoreSpecialities)
 
 const getSpecialisationById = adminController.getSpecialisationById.bind(adminController) as RequestHandler
 router.get('/specialities/:id',verifyToken,authorizeRole(['admin']),getSpecialisationById)
 
 const getActiveSpecialites = adminController.getActiveSpecialites.bind(adminController) as RequestHandler
-router.get('/activeSpecialities',verifyToken,authorizeRole(['admin']),getActiveSpecialites)
+router.get('/active-specialities',verifyToken,authorizeRole(['admin']),getActiveSpecialites)
 
 const getAllDoctors = adminController.getAllDoctors.bind(adminController) as RequestHandler
 router.get('/doctors',verifyToken,authorizeRole(['admin']),getAllDoctors)
@@ -50,16 +54,16 @@ const getDoctorById = adminController.getDoctorById.bind(adminController) as Req
 router.get('/doctors/:doctorId',verifyToken,authorizeRole(['admin']),getDoctorById)
 
 const approveDoctor = adminController.approveDoctor.bind(adminController) as RequestHandler
-router.post('/doctors/:doctorId/approve-doctor',verifyToken,authorizeRole(['admin']),approveDoctor)
+router.post('/doctors/approve-doctor/:doctorId',verifyToken,authorizeRole(['admin']),approveDoctor)
 
 const blockUser = adminController.blockUser.bind(adminController) as  RequestHandler
-router.put('/all-patients/:userId/block',verifyToken,authorizeRole(['admin']),blockUser)
+router.put('/all-patients/block/:userId',verifyToken,authorizeRole(['admin']),blockUser)
 
 const unblockUser = adminController.unblockUser.bind(adminController) as RequestHandler
-router.put('/all-patients/:userId/unblock',verifyToken,authorizeRole(['admin']),unblockUser)
+router.put('/all-patients/unblock/:userId',verifyToken,authorizeRole(['admin']),unblockUser)
 
 const blockDoctor = adminController.blockAndUnblockDoctor.bind(adminController) as RequestHandler
-router.put(`/doctors/:doctorId/block`,verifyToken,authorizeRole(['admin']),blockDoctor) //ivde oru ulla fieldine update cheyyan so we use put 
+router.put(`/doctors/block/:doctorId`,verifyToken,authorizeRole(['admin']),blockDoctor) //ivde oru ulla fieldine update cheyyan so we use put 
 
 const refreshToken = adminController.refreshToken.bind(adminController) as RequestHandler
 router.post('/refreshToken',refreshToken)

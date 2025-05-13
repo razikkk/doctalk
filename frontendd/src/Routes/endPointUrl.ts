@@ -6,7 +6,11 @@ export const userEndpoints = {
   // REFRESH_TOKEN : "/refreshToken"
   LOGOUT : "/logout",
   REFRESH_RESPONSE:"/refreshToken",
-  FETCH_SPECIALIZATION : '/specialization'
+  FETCH_SPECIALIZATION : '/specialization',
+  APPOINTMENTS: `/appointments`,
+  BOOK_APPOINTMENT:'/book-appointment',
+  CREATE_PAYPAL_ORDER:'/create-paypal-order',
+  CAPTURE_PAYPAL_ORDER:'/capture-paypal-order'
 };
 
 export const doctorEndpoints = {
@@ -22,7 +26,7 @@ export const doctorEndpoints = {
   ADD_SLOTS : '/add-slot',
   REFRESH_RESPONSE:"/refreshToken",
   EDIT_DOCTOR_PROFILE : (doctorId:string)=>`/profile/editProfile/${doctorId}`,
-  SPECIALITIES : '/getAllSpecialities',
+  SPECIALITIES : '/get-all-specialities',
   APPOINTMENTS:(doctorId:string)=>`/appointments?doctorId=${doctorId}`
 };
 
@@ -30,19 +34,19 @@ export const adminEndpoints = {
   SIGNIN: "/login",
   PATIENTS: "/all-patients",
   SPECIALITIES: "/specialities",
-  ADD_SPECIALITIES: "/addSpeciality",
-  UPDATE_SPECIALITIES : (id:string)=>`/updateSpeciality/${id}`,
-  DELETE_SPECIALITIES : (id:string)=> `/deleteSpeciality/${id}`,
-  RESTORE_SPECIALITIES : (id:string)=> `/restoreSpeciality/${id}`,
+  ADD_SPECIALITIES: "/add-speciality",
+  UPDATE_SPECIALITIES : (id:string)=>`/update-speciality/${id}`,
+  DELETE_SPECIALITIES : (id:string)=> `/delete-speciality/${id}`,
+  RESTORE_SPECIALITIES : (id:string)=> `/restore-speciality/${id}`,
   FETCH_SPECIALITIES : (id:string)=> `/specialities/${id}`,
-  ACTIVE_SPECIALITIES: "/activeSpecialities",
+  ACTIVE_SPECIALITIES: "/active-specialities",
   DOCTORS: "/doctors",
   DOCTOR_BY_ID: (doctorId: string) => `/doctors/${doctorId}`,
-  APPROVE_DOCTOR : (doctorId:string)=> `/doctors/${doctorId}/approve-doctor`,
-  BLOCK_USER : (userId:string)=> `/all-patients/${userId}/block`,
-  UNBLOCK_USER: (userId: string) => `/all-patients/${userId}/unblock`,
+  APPROVE_DOCTOR : (doctorId:string)=> `/doctors/approve-doctor/${doctorId}`,
+  BLOCK_USER : (userId:string)=> `/all-patients/block/${userId}`,
+  UNBLOCK_USER: (userId: string) => `/all-patients/unblock/${userId}`,
   FETCH_DOCTOR_APPOINTMENTS:"/appointments",
-  BLOCK_UNBLOCK_DOCTOR:(doctorId:string)=> `/doctors/${doctorId}/block`,
+  BLOCK_UNBLOCK_DOCTOR:(doctorId:string)=> `/doctors/block/${doctorId}`,
   REFRESH_RESPONSE:"/refreshToken",
   APPOINTMENT_FILTER_BY_DATE : (slotDate:string,doctorId:string)=>`/appointments/filter?slotDate=${slotDate}&doctorId=${doctorId}`
 };

@@ -1,4 +1,5 @@
 import { IDoctor } from "../../Models/doctorModel";
+import { ISlot } from "../../Models/slotModel";
 import { ISpeciality } from "../../Models/specialisationModel";
 import { IUser } from "../../Models/userModel";
 
@@ -20,4 +21,5 @@ export interface IUserRepository {
   //fetch doctor
   findDoctors(): Promise<IDoctor[]>;
   fetchSpecialization():Promise<ISpeciality[]>
+  fetchDoctorAppointment():Promise<ISlot[]>
 }
