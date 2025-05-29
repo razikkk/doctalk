@@ -1,3 +1,4 @@
+import { IReviewRating } from "../../Models/RevieRating";
 import { IDoctor } from "../../Models/doctorModel";
 import { ISlot } from "../../Models/slotModel";
 import { ISpeciality } from "../../Models/specialisationModel";
@@ -13,7 +14,11 @@ export interface IAdminService {
   restoreSpecialities(id: string): Promise<boolean>;
   getSpecialisationById(id: string): Promise<ISpeciality | null>;
   getActiveSpecialites(): Promise<ISpeciality[]>;
-  getAllDoctors(search:string,page:number,limit:number): Promise<{doctors:IDoctor[];totalPages:number;currentPage:number}>;
+  getAllDoctors(
+    search: string,
+    page: number,
+    limit: number
+  ): Promise<{ doctors: IDoctor[]; totalPages: number; currentPage: number }>;
   getDoctorById(doctorId: string): Promise<IDoctor | null>;
   approveDoctor(
     doctorId: string,
@@ -24,7 +29,7 @@ export interface IAdminService {
     doctorId: string,
     isBlocked: boolean
   ): Promise<boolean | null>;
-  fetchDoctorAppointment():Promise<ISlot[]>
-  filterSlots(slotDate:string,doctorId:string):Promise<ISlot[]>
-
+  fetchDoctorAppointment(): Promise<ISlot[]>;
+  filterSlots(slotDate: string, doctorId: string): Promise<ISlot[]>;
+  fetchDoctorReviews(doctorId:string):Promise<IReviewRating[]>
 }

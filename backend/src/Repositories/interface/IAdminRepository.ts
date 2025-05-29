@@ -24,10 +24,14 @@ export interface IAdmin {
     id: Types.ObjectId | string
   ): Promise<ISpeciality | null>;
   getActiveSpecialites(): Promise<ISpeciality[]>;
-  getAllDoctors(search:string,page:number,limit:number): Promise<{
-   doctors:IDoctor[];
-    totalPages:number;
-    currentPage:number;
+  getAllDoctors(
+    search: string,
+    page: number,
+    limit: number
+  ): Promise<{
+    doctors: IDoctor[];
+    totalPages: number;
+    currentPage: number;
   }>;
   getDoctorById(doctorId: string): Promise<IDoctor | null>;
   approveDoctor(doctorId: string, isActive: string): Promise<boolean | null>;
@@ -36,8 +40,6 @@ export interface IAdmin {
     doctorId: string,
     isBlocked: boolean
   ): Promise<boolean | null>;
-  fetchDoctorAppointment():Promise<ISlot[]>
-  filterSlots(slotDate:string,doctorId:string):Promise<ISlot[]>
-
-
+  fetchDoctorAppointment(): Promise<ISlot[]>;
+  filterSlots(slotDate: string, doctorId: string): Promise<ISlot[]>;
 }

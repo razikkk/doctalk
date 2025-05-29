@@ -2,12 +2,13 @@ import mongoose, { ObjectId, Schema, model } from "mongoose";
 
 export interface ISlot {
   doctorId: ObjectId;
-  specialization:ObjectId
-  days:Date
+  specialization: ObjectId;
+  days: Date;
   startTime: string;
   endTime: string;
   availableSlot: number;
-  consultingFees:number
+  consultingFees: number;
+  isDelete: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,14 +16,15 @@ export interface ISlot {
 const slotSchema = new Schema<ISlot>(
   {
     doctorId: { type: mongoose.Types.ObjectId, ref: "Doctor" },
-    specialization:{type:mongoose.Types.ObjectId,ref:"Specaility"},
-    days:{type:Date},
+    specialization: { type: mongoose.Types.ObjectId, ref: "Speciality" },
+    days: { type: Date },
     startTime: { type: String },
-    endTime: { type: String},
-    availableSlot: { type: Number},
-    consultingFees:{type:Number}
+    endTime: { type: String },
+    availableSlot: { type: Number },
+    consultingFees: { type: Number },
+    isDelete: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-export const Slot =  model<ISlot>("Slot", slotSchema);
+export const Slot = model<ISlot>("Slot", slotSchema);

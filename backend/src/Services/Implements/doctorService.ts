@@ -17,19 +17,26 @@ import { Types } from "mongoose";
 import jwt from "jsonwebtoken";
 import { ISlot, Slot } from "../../Models/slotModel";
 import { ISpeciality } from "../../Models/specialisationModel";
+import { IAppointmentRepository } from "../../Repositories/interface/IAppointment";
+import { IAppointment } from "../../Models/appointmentModel";
+import { IReviewRating } from "../../Models/RevieRating";
+import { IReviewRatingRepository } from "../../Repositories/interface/IReviewRating";
 
 export class DoctorService implements IDoctorService {
   private doctorRepository: IDoctorRepository;
   private userRepository: IUserRepository;
   private adminRepository: IAdmin;
+  private reviewRatingRepository : IReviewRatingRepository
   constructor(
     doctorRepository: IDoctorRepository,
     userRepository: IUserRepository,
-    adminRepository: IAdmin
+    adminRepository: IAdmin,
+    reviewRatingRepository: IReviewRatingRepository
   ) {
     this.doctorRepository = doctorRepository;
     this.userRepository = userRepository;
     this.adminRepository = adminRepository;
+    this.reviewRatingRepository = reviewRatingRepository
   }
 
   async register(
@@ -226,5 +233,17 @@ export class DoctorService implements IDoctorService {
   }
   async fetchDoctorAppointment(doctorId: string): Promise<ISlot[]> {
     return this.doctorRepository.fetchDoctorAppointment(doctorId);
+  }
+  async deleteSlot(slotId: string, isDelete: boolean): Promise<boolean | null> {
+    return this.doctorRepository.deleteSlot(slotId, isDelete);
+  }
+  async getAllAppointments(doctorId:string): Promise<IAppointment[]> {
+    return this.doctorRepository.getAllAppointments(doctorId)
+  }
+  async updateAppointmentStatus(appointmetId: string, status: string): Promise<IAppointment | null> {
+    return await this.doctorRepository.updateAppointmentStatus(appointmetId,status)
+  }
+  async fetchReviewPerDoctor(doctorId: string): Promise<IReviewRating[]> {
+    return this.reviewRatingRepository.fetchReviewPerDoctor(doctorId)
   }
 }

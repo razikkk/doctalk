@@ -155,3 +155,39 @@ export const fetchDoctorAppointment = async(doctorId:string)=>{
         console.log(error.message)
     }
 }
+
+export const deleteSlot = async(slotId:string)=>{
+    try {
+        const response = await doctorApi.patch(doctorEndpoints.DELETESLOT(slotId))
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+
+export const getAllAppointments = async(doctorId:string)=>{
+    try {
+        const response = await doctorApi.get(doctorEndpoints.FETCH_ALL_APPOINTMENTS(doctorId))
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+
+export const updateAppointmentStatus = async(appointmentId:string,status:string)=>{
+    try {
+        const response = await doctorApi.post(doctorEndpoints.UPDATE_APPOINTMENT_STATUS(appointmentId),{status})
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}
+
+export const fetchReviewPerDoctor = async(doctorId:string)=>{
+    try {
+        const response = await doctorApi.get(doctorEndpoints.FETCH_REVIEW_AND_RATING(doctorId))
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+}

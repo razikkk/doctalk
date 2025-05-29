@@ -1,3 +1,4 @@
+import { IAppointment } from "../../Models/appointmentModel";
 import { IDoctor } from "../../Models/doctorModel";
 import { ISlot } from "../../Models/slotModel";
 import { ISpeciality } from "../../Models/specialisationModel";
@@ -5,7 +6,7 @@ import { IDoctorRegisterType } from "../../type/type";
 
 export interface IDoctorRepository {
   findDoctorByEmail(email: string): Promise<IDoctor | null>;
-  
+
   createDoctor(doctorData: Partial<IDoctor>): Promise<IDoctor>;
 
   saveDoctor(doctor: IDoctor): Promise<IDoctor>;
@@ -22,11 +23,17 @@ export interface IDoctorRepository {
   getDoctorStatus(
     email: string
   ): Promise<"approved" | "rejected" | "pending" | undefined>;
-  getDoctorProfile(doctorId:string):Promise<IDoctor | null>
-  findById(userId:string):Promise<IDoctor | null>
+  getDoctorProfile(doctorId: string): Promise<IDoctor | null>;
+  findById(userId: string): Promise<IDoctor | null>;
 
-  addSlots(slotData:ISlot):Promise<ISlot>
-  editDoctorProfile(doctorId:string,doctorData:Partial<IDoctor>):Promise<IDoctor | null>
+  addSlots(slotData: ISlot): Promise<ISlot>;
+  editDoctorProfile(
+    doctorId: string,
+    doctorData: Partial<IDoctor>
+  ): Promise<IDoctor | null>;
   getAllSpecialities(): Promise<ISpeciality[]>;
-  fetchDoctorAppointment(doctorId:string):Promise<ISlot[]>
+  fetchDoctorAppointment(doctorId: string): Promise<ISlot[]>;
+  deleteSlot(slotId: string, isDelete: boolean): Promise<boolean | null>;
+  getAllAppointments(doctorId:string):Promise<IAppointment[]>
+  updateAppointmentStatus(appointmetId:string,status:string):Promise<IAppointment | null>
 }

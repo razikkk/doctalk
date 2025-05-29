@@ -31,6 +31,13 @@ import AppointmentDetails from './Pages/admin/AppointmentDetails'
 import DoctorDetails from './Pages/user/Doctors'
 import AppointmentsDetails from './Pages/doctor/AppointmentsDetails'
 import AppointmentCard from './Pages/user/AppointementsPage'
+import Profile from './Pages/user/Profile'
+import UserLayout from './Components/UserProfileLayout'
+import UserAppointments from './Pages/user/UserAppointments'
+import UserDoctorProfile from './Pages/user/DoctorProfile'
+import DoctorAppointments from './Pages/doctor/Appointments'
+import DoctorPerSpecialization from './Pages/user/DoctorPerSpecialization'
+import VideoCall from './Components/VideoCall'
 function App() {
   
 
@@ -52,6 +59,15 @@ function App() {
       <Route path='/dashboard' element={<UserDashboard/>}/>
       <Route path='/user/doctors' element={<DoctorDetails/>}/>
       <Route path='/users/appointments/:doctorId' element={<AppointmentCard/>}/>
+      <Route path='/doctor/specialization/:specializationId' element={<DoctorPerSpecialization/>}/>
+      <Route path='/appointment/video-call/:appointmentId' element={<VideoCall/>}/>
+
+      <Route element={<UserLayout/>}>
+      <Route path='/user/profile' element={<Profile/>}/>
+      <Route path='/user/appointments' element={<UserAppointments/>}/>
+      <Route path='/doctor/:doctorId' element={<UserDoctorProfile/>}/>
+      
+      </Route>
       
       </Route>
 
@@ -88,6 +104,8 @@ function App() {
       <Route path='/doctor/dashboard' element={<DoctorDashboard/>}/>
       <Route path='/doctor/profile' element={<DoctorProfiles/>}/>
       <Route path='/doctor/appointments' element={<AppointmentsDetails/>}/>
+      <Route path='/doctor/all-appointments' element={<DoctorAppointments/>}/>
+      <Route path='/doctor/appointment/video-call/:appointmentId' element={<VideoCall/>}/>
         </Route>
 
       </Route>

@@ -7,13 +7,15 @@ import uploads from "../config/multer";
 import { AdminRepository } from "../Repositories/implements/adminRepository";
 import { verifyToken } from "../middleware/authMiddleware";
 import limitter from "../middleware/RateLimitter";
+import { RevieRatingRepository } from "../Repositories/implements/ReviewRating";
 
 
 const router = express.Router()
 const UserRepository = new userRepository()
 const doctorRepository = new DoctorRepository()
 const adminRepository = new AdminRepository()
-const doctorService = new DoctorService(doctorRepository,UserRepository,adminRepository)
+const reviewRatingRepository = new RevieRatingRepository()
+const doctorService = new DoctorService(doctorRepository,UserRepository,adminRepository,reviewRatingRepository)
 const doctorController = new DoctorController(doctorService,doctorRepository)
 
 const register = doctorController.register.bind(doctorController) as RequestHandler
@@ -53,14 +55,24 @@ const addSlots = doctorController.addSlot.bind(doctorController) as RequestHandl
 router.post('/add-slot',verifyToken,addSlots)
 
 const editDoctorProfile = doctorController.editDoctorProfile.bind(doctorController) as RequestHandler
-router.patch('/profile/editProfile/:doctorId',uploads.fields([{name:"imageUrl",maxCount:1},{name:"identityProofUrl",maxCount:1},{name:"medicalCertificateUrl",maxCount:1}]),editDoctorProfile)
+router.patch('/profile/editProfile/:doctorId',uploads.fields([{name:"imageUrl",maxCount:1},{name:"identityProofUrl",maxCount:1},{name:"medicalCertificateUrl",maxCount:1}]),verifyToken,editDoctorProfile)
 
 const getAllSpecialities = doctorController.getAllSpecialities.bind(doctorController) as RequestHandler
 router.get('/get-all-specialities',verifyToken,getAllSpecialities)
 
 const fetchDoctorAppointment = doctorController.fetchDoctorAppointment.bind(doctorController) as RequestHandler
-router.get('/appointments',fetchDoctorAppointment)
+router.get('/appointments',verifyToken,fetchDoctorAppointment)
 
+const deleteSlot = doctorController.deleteSlot.bind(doctorController) as RequestHandler
+router.patch('/deleteSlot/:slotId',verifyToken,deleteSlot)
 
+const getAllAppointments = doctorController.getAllAppointments.bind(doctorController) as RequestHandler
+router.get('/appointments/:doctorId',getAllAppointments)
+
+const updateAppointmentStatus = doctorController.updateAppointmentStatus.bind(doctorController) as RequestHandler
+router.post('/update-status/:appointmentId',updateAppointmentStatus)
+
+const fetchReviewPerDoctor = doctorController.fetchReviewPerDoctor.bind(doctorController) as RequestHandler
+router.get('/review/:doctorId',fetchReviewPerDoctor)
 
 export default router

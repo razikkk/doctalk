@@ -80,7 +80,7 @@ export const DoctorSideBar = () => {
             icon={<Calendar size={22} />}
             label="Appointments"
             active={activeItem === 'Appointments'}
-            onClick={() => {setActiveItem('Appointments');navigate('/doctor/appointments')}}
+            onClick={() => {setActiveItem('Appointments');navigate('/doctor/all-appointments')}}
           />
         </div>
   

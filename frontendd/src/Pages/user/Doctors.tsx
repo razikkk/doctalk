@@ -9,7 +9,7 @@ import Footer from '../../Components/UserFooter'
 import { Pagination, Typography } from '@mui/material'
 import { useDispatch } from 'react-redux'
 import { logout } from '../../Redux/userSlice/userAuthSlice'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 
 
@@ -25,6 +25,7 @@ const DoctorDetails = () => {
   }
 
   interface ISpecialization {
+    _id:string
     name: string;
     image: string;
   }
@@ -82,11 +83,15 @@ const DoctorDetails = () => {
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 mb-10">
         {specializations?.map((specialization) => (
+              <Link to={`/doctor/specialization/${specialization._id}`} key={specialization._id}>
+
           <SpecializationCard 
             key={specialization.name}
             name={specialization.name}
             image={specialization.image}
           />
+              </Link>
+
         ))}
       </div>
       

@@ -14,12 +14,18 @@ export interface IUserRepository {
   deleteOtp(email: string): Promise<void>;
 
   //user
-  getAllUser(search:string,page:number,limit:number): Promise<{users:IUser[];totalPages:number;currentPage:number}>;
+  getAllUser(
+    search: string,
+    page: number,
+    limit: number
+  ): Promise<{ users: IUser[]; totalPages: number; currentPage: number }>;
   getUserById(userId: string): Promise<IUser | null>;
   updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser | null>;
 
   //fetch doctor
   findDoctors(): Promise<IDoctor[]>;
-  fetchSpecialization():Promise<ISpeciality[]>
-  fetchDoctorAppointment():Promise<ISlot[]>
+  fetchSpecialization(): Promise<ISpeciality[]>;
+  fetchDoctorAppointment(): Promise<ISlot[]>;
+  findDoctorById(doctorId: string): Promise<IDoctor | null>;
+  findDoctorBySpecialization(specializationId:string):Promise<IDoctor[]>
 }

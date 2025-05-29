@@ -1,6 +1,6 @@
 import { IDoctor } from "../Models/doctorModel";
 import { IUser } from "../Models/userModel"
-import {  ObjectId } from "mongoose";
+import mongoose, {  ObjectId, mongo } from "mongoose";
 
 
 
@@ -113,4 +113,11 @@ export type IDoctorType = {
 export type IDoctorRegisterType = {
     message:string,
     doctor:IDoctorType
+}
+
+export type IReviewRatingInput = {
+    userId:mongoose.Types.ObjectId
+    doctorId:mongoose.Types.ObjectId,
+    rating:number,
+    review:string
 }

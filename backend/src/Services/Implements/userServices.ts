@@ -6,6 +6,7 @@ import { IUserService } from "../Interface/IUserService";
 import {
   ILoginTypeDTO,
   IRegisterType,
+  IReviewRatingInput,
   IUserInput,
   googleUserInput,
 } from "../../type/type";
@@ -21,19 +22,28 @@ import { IAppointmentRepository } from "../../Repositories/interface/IAppointmen
 import { IAppointment } from "../../Models/appointmentModel";
 import { IPayment } from "../../Models/paymentModel";
 import { IPaymentRepository } from "../../Repositories/interface/IPayment";
-import payPalClient from '../../utils/paypalClient'
+import payPalClient from "../../utils/paypalClient";
+import { IReviewRating, ReviewRating } from "../../Models/RevieRating";
+import { IReviewRatingRepository } from "../../Repositories/interface/IReviewRating";
 dotenv.config();
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN || "razik3407";
 
 export class userService implements IUserService {
   private userRepository: IUserRepository;
-  private appointmentRepository:IAppointmentRepository
-  private payementRepository:IPaymentRepository
-  constructor(userRepository: IUserRepository,appointmentRepository:IAppointmentRepository,payementRepository:IPaymentRepository) {
+  private appointmentRepository: IAppointmentRepository;
+  private payementRepository: IPaymentRepository;
+  private reviewRatingRepository : IReviewRatingRepository
+  constructor(
+    userRepository: IUserRepository,
+    appointmentRepository: IAppointmentRepository,
+    payementRepository: IPaymentRepository,
+    reviewRatingRepository: IReviewRatingRepository
+  ) {
     this.userRepository = userRepository;
-    this.appointmentRepository = appointmentRepository
-    this.payementRepository = payementRepository
+    this.appointmentRepository = appointmentRepository;
+    this.payementRepository = payementRepository;
+    this.reviewRatingRepository = reviewRatingRepository
   }
   async register(
     name: string,
@@ -214,32 +224,61 @@ export class userService implements IUserService {
     return this.userRepository.fetchDoctorAppointment();
   }
 
-   async createAppointment(appointmentData: Partial<IAppointment>): Promise<IAppointment> {
-       return await this.appointmentRepository.createAppointment(appointmentData)
-   } 
+  async createAppointment(
+    appointmentData: Partial<IAppointment>
+  ): Promise<IAppointment> {
+    return await this.appointmentRepository.createAppointment(appointmentData);
+  }
 
-   async getAppointmentById(appointmentId: string): Promise<IAppointment | null> {
-       return await this.appointmentRepository.getAppointmentById(appointmentId)
-   }
-   
-   async createPayment(paymentData: Partial<IPayment>): Promise<IPayment> {
-       return await this.payementRepository.createPayment(paymentData)
-   }
+  async getAppointmentById(
+    appointmentId: string
+  ): Promise<IAppointment | null> {
+    return await this.appointmentRepository.getAppointmentById(appointmentId);
+  }
 
-   async updatePaymentWithAppointment(paymentId: string, appointmentId: string): Promise<IPayment | null> {
-       return await this.payementRepository.updatePaymentWithAppointment(paymentId,appointmentId)
-   }
-   async decreaseAvailableSlot(slotId: string): Promise<boolean> {
-       return this.appointmentRepository.decreaseAvailableSlot(slotId)
-   }
+  async createPayment(paymentData: Partial<IPayment>): Promise<IPayment> {
+    return await this.payementRepository.createPayment(paymentData);
+  }
 
-   async createPaypalOrder(amount: string): Promise<string> {
-       const token  = await payPalClient.getAccessToken()
-       return await payPalClient.createOrder(amount,token)
-   }
-   async capturePaypalOrder(orderID: string): Promise<any> {
-       const token = await payPalClient.getAccessToken()
-       return await payPalClient.captureOrder(orderID,token)
-   }
+  async updatePaymentWithAppointment(
+    paymentId: string,
+    appointmentId: string
+  ): Promise<IPayment | null> {
+    return await this.payementRepository.updatePaymentWithAppointment(
+      paymentId,
+      appointmentId
+    );
+  }
+  async decreaseAvailableSlot(slotId: string): Promise<boolean> {
+    return this.appointmentRepository.decreaseAvailableSlot(slotId);
+  }
+
+  async createPaypalOrder(amount: string): Promise<string> {
+    const token = await payPalClient.getAccessToken();
+    return await payPalClient.createOrder(amount, token);
+  }
+  async capturePaypalOrder(orderID: string): Promise<any> {
+    const token = await payPalClient.getAccessToken();
+
+    console.log("Calling PayPal API to capture:", orderID, token);
+    return await payPalClient.captureOrder(orderID, token);
+  }
+
+  async getAllAppointment(userId: string): Promise<IAppointment[]> {
+    return this.appointmentRepository.getAllAppointment(userId);
+  }
+
+  async findDoctorById(doctorId: string): Promise<IDoctor | null> {
+    return this.userRepository.findDoctorById(doctorId);
+  }
+
+  async findDoctorBySpecialization(specializationId: string): Promise<IDoctor[]> {
+    return await this.userRepository.findDoctorBySpecialization(specializationId)
+  }
+  async postReviewAndRating(data: IReviewRatingInput): Promise<IReviewRating | null> {
+    return await this.reviewRatingRepository.postReviewAndRating(data)
+  }
+  async fetchDoctorReview(doctorId: string): Promise<IReviewRating[]> {
+    return ReviewRating.find({doctorId:doctorId}).populate('userId')
+  }
 }
-   

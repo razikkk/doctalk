@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { bookAppointment, fetchDoctorAppointment } from '../../utils/auth';
 import { Star } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import PaymentModal from '../../Components/PaymentModal';
 import {Toaster, toast} from "sonner"
+import { io } from 'socket.io-client';
 
 interface Specialization {
   _id: string;
@@ -35,11 +36,13 @@ interface IAppointment {
 
 const AppointmentCard = () => {
     const { doctorId } = useParams();
+    const userId = localStorage.getItem('userId')
     console.log(typeof doctorId)
   const [selectedAppointment, setSelectedAppointment] = useState<IAppointment | null>(null);
   const [todayTomorrowSlots, setTodayTomorrowSlots] = useState<IAppointment[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showModal,setShowModal] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -56,9 +59,6 @@ const AppointmentCard = () => {
                 (appointment: IAppointment) => {
                   const appointmentDoctorId = appointment.doctorId._id.trim();
                   const reduxDoctorId = doctorId.trim();
-              
-                  console.log(`appointmentDoctorId: ${appointmentDoctorId}`);
-                  console.log(`reduxDoctorId: ${reduxDoctorId}`);
               
                   return appointmentDoctorId === reduxDoctorId;
                 }
@@ -127,7 +127,7 @@ const AppointmentCard = () => {
 
   const handleBookAppointment = async()=>{
     const appointmentData = {
-        userId:selectedAppointment.userId,
+        userId:userId,
         doctorId:selectedAppointment.doctorId._id,
         slotId:selectedAppointment._id,
         tokenNumber:selectedAppointment.availableSlot,
@@ -135,13 +135,14 @@ const AppointmentCard = () => {
     }
     try {
         const response = await bookAppointment(appointmentData)
+        console.log(response,'res')
         if(response.success){
             toast.success("appointment booked",{duration:2000})
         }else{
-            alert("error while booking appointment")
+            alert(response.message || 'fdadf')
         }
     } catch (error:any) {
-        console.log(error.message)
+        toast.error(error.response.data.message)
     }
   }
 

@@ -5,8 +5,10 @@ import { MdEdit } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../Redux/store';
-import { editDoctorProfile, getAllSpecialities, getDoctorProfile } from '../../utils/doctorAuth';
+import { editDoctorProfile, fetchReviewPerDoctor, getAllSpecialities, getDoctorProfile } from '../../utils/doctorAuth';
 import { Edit } from 'lucide-react';
+import { Toaster, toast } from 'sonner';
+import profile from '../../assets/testimonial.jpeg'
 
 const DoctorProfiles = () => {
     interface ISpecialization {
@@ -33,6 +35,7 @@ const DoctorProfiles = () => {
     const [editForm, setEditForm] = useState<IDoctor | null>();
     const doctorId = useSelector((state: RootState) => state.doctorAuth.doctorId);
     const [specialisation,setSpecialisation] = useState([])
+    const [reviews,setReviews] = useState([])
     const [errors,setErrors] = useState({
       name:'',
       language:'',
@@ -74,6 +77,7 @@ const DoctorProfiles = () => {
             if (!doctorId) return;
             try {
                 const response = await getDoctorProfile(doctorId);
+                console.log(response,'redss')
                 if (response && response.doctor) {
                     setDoctor(response.doctor);
                     setEditForm(response.doctor);
@@ -102,26 +106,20 @@ const DoctorProfiles = () => {
       }
     },[showEditModal])
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      
-      if (!editForm) return;
-      
-      if (name === 'specialization') {
-        setEditForm({
-          ...editForm,
-          specialization: {
-            ...editForm.specialization,
-            name: value
+    useEffect(()=>{
+      const fetchReviews = async()=>{
+        try {
+          const response = await fetchReviewPerDoctor(doctorId as string)
+          console.log(response)
+          if(response.success){
+            setReviews(response.result)
           }
-        });
-      } else {
-        setEditForm({
-          ...editForm,
-          [name]: name === 'experience' ? (parseInt(value) || 0) : value
-        });
+        } catch (error:any) {
+          console.log(error.message)
+        }
       }
-    };
+      fetchReviews()
+    },[])
     
 
     const handleSubmit = async(e: React.FormEvent) => {
@@ -163,8 +161,8 @@ const DoctorProfiles = () => {
           const response = await editDoctorProfile(doctorId ,formData)
           console.log(response,'res')
             if(response.success){
-              alert("added")
               setShowEditModal(false)
+              toast.success("Your profile has been successfully updated.")
             }
         } catch (error:any) {
           console.log(error.message)
@@ -178,7 +176,7 @@ const DoctorProfiles = () => {
 
     return (
         <div className="max-w-5xl mx-auto bg-white p-8 rounded-xl shadow-md bg-gray-20 relative">
-          
+          <Toaster/>
             <GrPrevious onClick={() => navigate('/doctor/dashboard')} className='absolute right-[40px] text-[#157B7B] font-extrabold text-3xl cursor-pointer' />
             
             <div className="p-6 rounded-lg">
@@ -218,12 +216,44 @@ const DoctorProfiles = () => {
             <hr className='text-gray-200' />
 
             <div className="relative p-6 rounded-lg mt-6">
-                <h2 className="text-xl font-semibold">Reviews</h2>
-                <div className="mt-2 p-4 bg-white rounded-lg shadow-md">
-                    <p className="text-gray-600">No reviews</p>
-                   
-                </div>
+  <h2 className="text-xl font-semibold mb-4">Reviews</h2>
+  <div className="relative p-6 rounded-lg mt-6">
+  {
+    reviews.length > 0 ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+        {reviews.map((rev, index) => (
+          <div key={index} className="flex items-start gap-3 self-start">
+            {/* Profile Circle */}
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-white font-semibold overflow-hidden">
+              <img src={profile} alt="" className="rounded-full w-full h-full object-cover" />
             </div>
+
+            {/* Comment Bubble */}
+            <div className="relative bg-white shadow-md rounded-xl p-4 w-full before:content-[''] before:absolute before:-left-2 before:top-4 before:w-0 before:h-0 before:border-t-8 before:border-b-8 before:border-r-8 before:border-t-transparent before:border-b-transparent before:border-r-white">
+            <div className="flex justify-between items-center mb-1">
+  <h3 className="text-base font-semibold text-gray-900">{rev?.userId?.name}</h3>
+  <p className="text-sm text-gray-500">{new Date(rev.createdAt).toLocaleDateString()}</p>
+</div>
+              {[...Array(5)].map((_, i) => (
+    <span key={i} className={i < rev.rating ? "text-yellow-500" : "text-gray-300"}>
+      ★
+    </span>
+  ))}
+              <p className="text-sm text-gray-800 break-words leading-relaxed">{rev.review}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p className="text-gray-600">No reviews</p>
+    )
+  }
+</div>
+
+
+
+</div>
+
             <hr className='text-gray-200' />
 
             <div className="p-6 rounded-lg mt-6">

@@ -10,7 +10,12 @@ export const userEndpoints = {
   APPOINTMENTS: `/appointments`,
   BOOK_APPOINTMENT:'/book-appointment',
   CREATE_PAYPAL_ORDER:'/create-paypal-order',
-  CAPTURE_PAYPAL_ORDER:'/capture-paypal-order'
+  CAPTURE_PAYPAL_ORDER:'/capture-paypal-order',
+  FETCH_APPOINTMENTS:(userId:string)=> `appointments/${userId}`,
+  FETCH_DOCTOR_PROFILE:(doctorId:string)=>`/doctor/${doctorId}`,
+  FETCH_DOCTOR_BY_SPECIALIZATION:(specializationId:string)=>`/doctor/specialization/${specializationId}`,
+  POST_REVIEW_RATING:`/review-rating`,
+  FETCH_DOCTOR_REVIEW:(doctorId:string)=>`/reviews/${doctorId}`
 };
 
 export const doctorEndpoints = {
@@ -27,7 +32,11 @@ export const doctorEndpoints = {
   REFRESH_RESPONSE:"/refreshToken",
   EDIT_DOCTOR_PROFILE : (doctorId:string)=>`/profile/editProfile/${doctorId}`,
   SPECIALITIES : '/get-all-specialities',
-  APPOINTMENTS:(doctorId:string)=>`/appointments?doctorId=${doctorId}`
+  APPOINTMENTS:(doctorId:string)=>`/appointments?doctorId=${doctorId}`,
+  DELETESLOT:(slotId:string)=>`/deleteSlot/${slotId}`,
+  FETCH_ALL_APPOINTMENTS:(doctorId:string)=>`/appointments/${doctorId}`,
+  UPDATE_APPOINTMENT_STATUS :(appointmentId:string)=> `/update-status/${appointmentId}`,
+  FETCH_REVIEW_AND_RATING : (doctorId:string)=> `/review/${doctorId}`
 };
 
 export const adminEndpoints = {
@@ -48,5 +57,6 @@ export const adminEndpoints = {
   FETCH_DOCTOR_APPOINTMENTS:"/appointments",
   BLOCK_UNBLOCK_DOCTOR:(doctorId:string)=> `/doctors/block/${doctorId}`,
   REFRESH_RESPONSE:"/refreshToken",
-  APPOINTMENT_FILTER_BY_DATE : (slotDate:string,doctorId:string)=>`/appointments/filter?slotDate=${slotDate}&doctorId=${doctorId}`
+  APPOINTMENT_FILTER_BY_DATE : (slotDate:string,doctorId:string)=>`/appointments/filter?slotDate=${slotDate}&doctorId=${doctorId}`,
+  FETCH_DOCTOR_REVIEW:(doctorId:string)=>`/review/${doctorId}`
 };

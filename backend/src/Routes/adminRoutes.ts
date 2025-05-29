@@ -10,14 +10,16 @@ import { authorizeRole } from '../middleware/roleBasedAuthorization'
 import limitter from '../middleware/RateLimitter'
 import { appointemntRepository } from '../Repositories/implements/appointment'
 import { paymentRepository } from '../Repositories/implements/paymentRepository'
+import { RevieRatingRepository } from '../Repositories/implements/ReviewRating'
 
 const router = express.Router()
 const UserRepository = new userRepository()
 const adminRepository = new AdminRepository()
 const AppointemntRepository = new appointemntRepository()
 const PaymentRepository = new paymentRepository()
-const UserService = new userService(UserRepository,AppointemntRepository,PaymentRepository) 
-const adminService = new AdminService(adminRepository)
+const reviewRatingRepository = new RevieRatingRepository()
+const UserService = new userService(UserRepository,AppointemntRepository,PaymentRepository,reviewRatingRepository) 
+const adminService = new AdminService(adminRepository,reviewRatingRepository)
 const adminController = new AdminController(UserService,adminService)
 
 const loginHandler = adminController.adminLogin.bind(adminController) as RequestHandler
@@ -73,4 +75,7 @@ router.get('/appointments',verifyToken,authorizeRole(['admin']),fetchDoctorAppoi
 
 const filteredSlots = adminController.filterSlots.bind(adminController) as RequestHandler
 router.get('/appointments/filter',verifyToken,authorizeRole(['admin']),filteredSlots)
+
+const fetchDoctorReviews = adminController.fetchDoctorReviews.bind(adminController) as RequestHandler
+router.get('/review/:doctorId',fetchDoctorReviews)
 export default router

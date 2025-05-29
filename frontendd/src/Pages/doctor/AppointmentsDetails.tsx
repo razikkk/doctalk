@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { ArrowLeft, Edit } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { fetchDoctorAppointment } from '../../utils/doctorAuth'
+import { deleteSlot, fetchDoctorAppointment } from '../../utils/doctorAuth'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../Redux/store'
+import { RiDeleteBin5Line } from "react-icons/ri";
+import { Toaster, toast } from 'sonner'
+
 
 interface ISlot {
+  _id:string,
     startTime: string,
     endTime: string,
     availableSlot: number,
@@ -54,22 +58,18 @@ const AppointmentsDetails = () => {
     const [appointments, setAppointments] = useState<ISlot[]>([])
     const navigate = useNavigate()
     const doctorId = useSelector((state:RootState)=>state.doctorAuth.doctorId)
-    const [showEditModal,setShowEditModal] = useState(false)
-    const [editForm,setEditForm] = useState<ISlot[] | null>(null)
-
+    const fetchAppointments = async () => {
+      try {
+          const response = await fetchDoctorAppointment(doctorId as string)
+          console.log(response)
+          if (response.success) {
+              setAppointments(response.slotData)
+          }
+      } catch (error: any) {
+          console.log(error.message)
+      }
+  }
     useEffect(() => {
-        const fetchAppointments = async () => {
-            try {
-                const response = await fetchDoctorAppointment(doctorId as string)
-                console.log(response)
-                if (response.success) {
-                    setAppointments(response.slotData)
-                    setEditForm(response.slotData)
-                }
-            } catch (error: any) {
-                console.log(error.message)
-            }
-        }
         fetchAppointments()
     }, [])
 
@@ -92,11 +92,23 @@ const AppointmentsDetails = () => {
     }, {})
 
     // const firstDoctor = appointments[0]?.doctorId
-
+    
+    const handleDelete = async(slotId:string)=>{
+      try {
+        const response = await deleteSlot(slotId)
+        if(response.success){
+          setAppointments(prev=>prev.filter(slot =>slot._id !==slotId))
+          toast.success('Slot deleted successfully')
+        }
+      } catch (error:any) {
+        console.log(error.message)
+      }
+    }
 
 
     return (
         <div className="max-w-5xl mx-auto bg-white p-6 md:p-8 rounded-xl shadow-md relative">
+          <Toaster/>
             {/* Back Button */}
             <button
                 onClick={() => navigate('/doctor/profile')}
@@ -123,7 +135,7 @@ const AppointmentsDetails = () => {
 
             {/* Appointments Section */}
             <div className="rounded-lg">
-                <h2 className="text-2xl font-semibold mb-6">Appointments</h2>
+                <h2 className="text-2xl font-semibold mb-6">Slots</h2>
                 
                 {Object.keys(groupedByDay).length > 0 ? (
                     Object.keys(groupedByDay).map((day) => (
@@ -148,10 +160,11 @@ const AppointmentsDetails = () => {
                                         }`}
                                     >
                             {!isPast && (
-                <Edit
+                <RiDeleteBin5Line 
                     size={20}
-                    className="absolute top-5 right-5 text-[#157B7B] text-xl cursor-pointer"
-                    onClick={()=>{setShowEditModal(true);setEditForm(appointment)}}
+                    className="absolute top-3 right-5 text-[#157B7B] text-xl cursor-pointer"
+                    onClick={()=>handleDelete(appointment._id)}
+                    
                 />
             )}
                                         <div className="space-y-2 pt-7">
@@ -191,98 +204,7 @@ const AppointmentsDetails = () => {
 
 
 
-            {showEditModal && (
-  <div className="fixed inset-0 flex backdrop-brightness-30 items-center justify-center p-4 z-50">
-    <div className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-      <h2 className="text-xl font-semibold mb-4">Edit Appointment Details</h2>
-      <form
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          // handle submit logic here
-        }}
-      >
-        {/* Date */}
-
-        {/* Start Time */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Start Time</label>
-          <input
-            type="time"
-            name="startTime"
-            value={editForm?.startTime}
-            onChange={(e) => setEditForm((prev) => ({ ...prev!, startTime: e.target.value }))}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#157B7B] focus:outline-none focus:ring-1 focus:ring-[#157B7B]"
-          />
-          <p>{editForm?.startTime}</p>
-        </div>
-
-        {/* End Time */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">End Time</label>
-          <input
-            type="time"
-            name="endTime"
-            value={editForm?.endTime || ''}
-            onChange={(e) => setEditForm((prev) => ({ ...prev!, endTime: e.target.value }))}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#157B7B] focus:outline-none focus:ring-1 focus:ring-[#157B7B]"
-          />
-        </div>
-
-        {/* Token Count */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Token Count</label>
-          <input
-            type="number"
-            name="availableSlot"
-            value={editForm?.availableSlot || 0}
-            onChange={(e) =>
-              setEditForm((prev) => ({
-                ...prev!,
-                availableSlot: parseInt(e.target.value) || 0,
-              }))
-            }
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#157B7B] focus:outline-none focus:ring-1 focus:ring-[#157B7B]"
-          />
-        </div>
-
-        {/* Consultation Fee */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Consultation Fee (₹)</label>
-          <input
-            type="number"
-            name="consultingFees"
-            value={editForm?.consultingFees || 0}
-            onChange={(e) =>
-              setEditForm((prev) => ({
-                ...prev!,
-                consultingFees: parseInt(e.target.value) || 0,
-              }))
-            }
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#157B7B] focus:outline-none focus:ring-1 focus:ring-[#157B7B]"
-          />
-        </div>
-
-        {/* Buttons */}
-        <div className="flex justify-end gap-4 mt-6">
-          <button
-            type="button"
-            onClick={() => setShowEditModal(false)}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-white bg-[#157B7B] rounded-md hover:bg-[#0d5656] transition-colors"
-          >
-            Save Appointment
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
+       
         </div>
     )
 }

@@ -1,11 +1,13 @@
 import  { useEffect, useState } from 'react'
-import {  approveDoctor, blockAndUnblockDoctor, getDoctorById } from '../../utils/adminAuth'
+import {  approveDoctor, blockAndUnblockDoctor, fetchDoctorReview, getDoctorById } from '../../utils/adminAuth'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FaIdBadge, FaFileMedical } from "react-icons/fa";
 import { GrPrevious } from "react-icons/gr";
 import { TbStethoscope,TbStethoscopeOff } from "react-icons/tb";
 import CustomConfirmAlert from '../../Components/ConfirmAlert';
 import { Toaster, toast } from 'sonner';
+import profile from '../../assets/testimonial.jpeg'
+
 
 
 
@@ -30,6 +32,15 @@ const DoctorProfile = () => {
         isBlocked:boolean
 
     }
+
+    interface IReview{
+      rating:number,
+      review:string,
+      createdAt:Date,
+      userId:{
+        name:string
+      }
+    }
     const {doctorId} = useParams()
     const [doctor,setDoctor] = useState<Doctor | null>(null)
     const [loading,setLoading] = useState(false)
@@ -37,6 +48,7 @@ const DoctorProfile = () => {
     const [showIdentityProof, setShowIdentityProof] = useState(false);
     const [showDoctorAlert,setShowDoctorAlert] = useState<boolean>(false)
     const [isDoctorBlocked,setIsDoctorBlocked] = useState<boolean>(false)
+    const [reviews,setReviews] = useState<IReview[]>([])
     const navigate = useNavigate()
 
     useEffect(()=>{
@@ -59,6 +71,20 @@ const DoctorProfile = () => {
 
     },[doctorId])
 
+    useEffect(()=>{
+      const fetchReviews = async()=>{
+        try {
+          const response = await fetchDoctorReview(doctorId as string)
+          if(response.success){
+            setReviews(response.result)
+          }
+        } catch (error:any) {
+          console.log(error.message)
+        }
+      }
+      fetchReviews()
+    },[doctorId])
+
     if(loading) {
         <p>Loading....</p>
     }
@@ -70,7 +96,6 @@ const DoctorProfile = () => {
         if(!doctorId) return
         console.log(doctorId,'docr')
         const response = await approveDoctor(doctorId,status)
-        // console.log(response)
         if (response && response.success) {
           setTimeout(()=>{
             toast.success(response.message || `Doctor ${status}`);
@@ -148,13 +173,44 @@ const DoctorProfile = () => {
       <hr className='text-gray-200'/>
 
       {/* Reviews Section */}
-      <div className="p-6 rounded-lg mt-6">
-        <h2 className="text-xl font-semibold">Reviews</h2>
-        <div className="mt-2 p-4 bg-white rounded-lg shadow-md ">
-          {/* <p className="font-bold">Razik ⭐⭐⭐⭐⭐</p> */}
-          <p className="text-gray-600">No reviews</p>
-        </div>
+      <div className="relative p-6 rounded-lg mt-6">
+  <h2 className="text-xl font-semibold mb-4">Reviews</h2>
+  <div className="relative p-6 rounded-lg mt-6">
+  {
+    reviews.length > 0 ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+        {reviews.map((rev, index) => (
+          <div key={index} className="flex items-start gap-3 self-start">
+            {/* Profile Circle */}
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-white font-semibold overflow-hidden">
+              <img src={profile} alt="" className="rounded-full w-full h-full object-cover" />
+            </div>
+
+            {/* Comment Bubble */}
+            <div className="relative bg-white shadow-md rounded-xl p-4 w-full before:content-[''] before:absolute before:-left-2 before:top-4 before:w-0 before:h-0 before:border-t-8 before:border-b-8 before:border-r-8 before:border-t-transparent before:border-b-transparent before:border-r-white">
+            <div className="flex justify-between items-center mb-1">
+  <h3 className="text-base font-semibold text-gray-900">{rev?.userId?.name}</h3>
+  <p className="text-sm text-gray-500">{new Date(rev.createdAt).toLocaleDateString()}</p>
+</div>
+              {[...Array(5)].map((_, i) => (
+    <span key={i} className={i < rev.rating ? "text-yellow-500" : "text-gray-300"}>
+      ★
+    </span>
+  ))}
+              <p className="text-sm text-gray-800 break-words leading-relaxed">{rev.review}</p>
+            </div>
+          </div>
+        ))}
       </div>
+    ) : (
+      <p className="text-gray-600">No reviews</p>
+    )
+  }
+</div>
+
+
+
+</div>
       <hr className='text-gray-200'/>
 
       {/* Achievements Section */}

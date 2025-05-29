@@ -28,25 +28,62 @@ const PaymentModal:React.FC<IPayment> = ({amount,onClose,onSuccess}) => {
                     createOrder={async()=>{
                         try {
                             const response = await createPaypalOrder(amount.toString())
-                            return response.orderID
+                            return response?.orderID
                         } catch (error:any) {
                             console.log(error.message)
                         }
                     }}
-                   onApprove={async(data)=>{
-                    try {
-                        const response = await capturePaypalOrder(data.orderID)
-                        if(response.success){
-                            alert(`Transaction completed by ${response.result?.payer?.name?.given_name}`)
-                            onClose()
-                            onSuccess()
-                        }else{
-                            alert("Transaction failed or not captured")
+                    onApprove={async(data, actions) => {
+                        try {
+                          console.log(`Processing order: ${data.orderID}`);
+                          const response = await capturePaypalOrder(data.orderID);
+                          
+                          console.log("PayPal capture response:", response);
+                          
+                          // Always check if response exists before accessing properties
+                          if (response && response.success) {
+                            // ✅ Payment succeeded
+                            console.log("Payment successful", response.result);
+                            alert(`Transaction completed by ${response.result?.payer?.name?.given_name || 'customer'}`);
+                            onClose();
+                            onSuccess();
+                          } 
+                          // Explicitly handle PayPal errors
+                          else if (response && response.paypalError) {
+                            console.log("PayPal error:", response);
+                            
+                            if (response.issue === "INSTRUMENT_DECLINED") {
+                              // Payment method was declined
+                              console.log("Payment method declined");
+                              
+                              // Option 1: Let PayPal handle the retry flow
+                            //   if (actions && typeof actions.restart === 'function') {
+                            //     return actions.restart();
+                            //   }
+                              
+                              // Option 2: Or use PayPal's provided redirect URL
+                               if (response.redirectUrl) {
+                                if (confirm("Your payment method was declined. Would you like to try a different payment method?")) {
+                                  window.location.href = response.redirectUrl;
+                                }
+                              } else {
+                                alert("Your payment method was declined. Please try a different payment method.");
+                              }
+                            } else {
+                              // Other PayPal error
+                              alert(response.message || "There was a problem with your payment");
+                            }
+                          } 
+                          // Handle generic errors
+                          else {
+                            console.error("Payment error:", response);
+                            alert(response?.message || "There was a problem processing your payment. Please try again.");
+                          }
+                        } catch (error: any) {
+                          console.error("Client error:", error.message);
+                          alert("An error occurred while processing your payment. Please try again.");
                         }
-                    } catch (error:any) {
-                        console.log(error.message)
-                    }
-                   }}
+                      }}
                     />
                 </div>
                 <button onClick={onClose} className="mt-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">

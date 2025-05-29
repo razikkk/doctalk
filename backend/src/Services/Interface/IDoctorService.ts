@@ -8,6 +8,8 @@ import {
 } from "../../type/type";
 import { ISlot } from "../../Models/slotModel";
 import { ISpeciality } from "../../Models/specialisationModel";
+import { IAppointment } from "../../Models/appointmentModel";
+import { IReviewRating } from "../../Models/RevieRating";
 
 export interface IDoctorService {
   register(
@@ -40,11 +42,19 @@ export interface IDoctorService {
     email: string
   ): Promise<"approved" | "rejected" | "pending" | undefined>;
   login(email: string, password: string): Promise<IDoctorLoginType>;
-  findDoctorByEmail(email:string):Promise<IDoctor | null>
-  createDoctor(doctorData:googleUserInput):Promise<IDoctor>
-  getDoctorProfile(doctorId:string):Promise<IDoctor | null>
-  addSlots(slotData:ISlot):Promise<ISlot>
-  editDoctorProfile(doctorId:string,doctorData:Partial<IDoctor>):Promise<IDoctor | null>
+  findDoctorByEmail(email: string): Promise<IDoctor | null>;
+  createDoctor(doctorData: googleUserInput): Promise<IDoctor>;
+  getDoctorProfile(doctorId: string): Promise<IDoctor | null>;
+  addSlots(slotData: ISlot): Promise<ISlot>;
+  editDoctorProfile(
+    doctorId: string,
+    doctorData: Partial<IDoctor>
+  ): Promise<IDoctor | null>;
   getAllSpecialities(): Promise<ISpeciality[]>;
-  fetchDoctorAppointment(doctorId:string):Promise<ISlot[]>
+  fetchDoctorAppointment(doctorId: string): Promise<ISlot[]>;
+  deleteSlot(slotId: string, isDelete: boolean): Promise<boolean | null>;
+  getAllAppointments(doctorId:string):Promise<IAppointment[]>
+  updateAppointmentStatus(appointmetId:string,status:string):Promise<IAppointment | null>
+  fetchReviewPerDoctor(doctorId:string):Promise<IReviewRating[]>
+
 }

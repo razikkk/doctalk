@@ -9,10 +9,22 @@ import doctorRouter from './Routes/doctorRoutes'
 import fs from 'fs'
 import morgan from 'morgan'
 import path from 'path'
+import http from 'http'
+import { Server, Socket } from 'socket.io'
+import { socketHandler } from './utils/socket'
 
 dotenv.config()
 
 const app = express()
+const server = http.createServer(app) //socketin http server venm
+const io = new Server(server,{
+  cors:{
+    origin:'http://localhost:5173',
+    credentials:true
+  }
+})
+
+
 const corsOptions = {
     origin: 'http://localhost:5173',
     credentials: true,
@@ -52,8 +64,8 @@ mongoose.connect(process.env.MONGO_URL as string).then(()=>{
 .catch((err)=>{
     console.log(err.message)
 })
-
+socketHandler(io)
 const PORT = process.env.PORT || 4000
-app.listen(PORT,()=>{
+server.listen(PORT,()=>{
     console.log(`http://localhost:${PORT}`)
 })

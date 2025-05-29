@@ -1,7 +1,6 @@
 import { adminEndpoints } from "../Routes/endPointUrl";
 import adminAPI from "./adminApi";
 import Cookies from "js-cookie";
-import doctorApi from "./doctorApi";
 export const adminSignIn = async (adminData:any)=>{
     try {
         const response = await adminAPI.post(adminEndpoints.SIGNIN,adminData,{withCredentials:true})
@@ -231,4 +230,13 @@ export const fetchDoctorAppointment = async()=>{
 export const filteredSlots = async(slotDate:string,doctorId:string)=>{
 const response = await adminAPI.get(adminEndpoints.APPOINTMENT_FILTER_BY_DATE(slotDate,doctorId))
 return response.data
+}
+
+export const fetchDoctorReview = async(doctorId:string)=>{
+    try {
+        const response  = await adminAPI.get(adminEndpoints.FETCH_DOCTOR_REVIEW(doctorId))
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
 }

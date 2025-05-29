@@ -4,13 +4,12 @@ import { IAdminInterface } from "../Interface/IAdminController";
 import { IAdminService } from "../../Services/Interface/IAdminService";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
-import jwt, { JwtPayload } from 'jsonwebtoken'
-import dotenv from 'dotenv'
-dotenv.config()
+import jwt, { JwtPayload } from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
-
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN || ""
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN || ""
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN || "";
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN || "";
 
 export class AdminController implements IAdminInterface {
   private userService: IUserService;
@@ -20,7 +19,6 @@ export class AdminController implements IAdminInterface {
     this.adminService = adminService;
   }
 
-  
   async adminLogin(
     req: Request,
     res: Response,
@@ -28,27 +26,21 @@ export class AdminController implements IAdminInterface {
   ): Promise<void | Response> {
     try {
       const { email, password } = req.body;
-      const { userData, accessToken, refreshToken } = await this.userService.login(
-        email,
-        password,
-        true
-      );
-      res.cookie("adminRefreshToken",refreshToken,{
-        httpOnly:true,
-        secure:false,
-        sameSite:"lax",
-        maxAge:7 * 24 * 60 * 60 * 1000
-      })
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "admin Logined",
-          user: userData,
-          accessToken,
-          refreshToken
-        });
-        
+      const { userData, accessToken, refreshToken } =
+        await this.userService.login(email, password, true);
+      res.cookie("adminRefreshToken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      res.status(200).json({
+        success: true,
+        message: "admin Logined",
+        user: userData,
+        accessToken,
+        refreshToken,
+      });
     } catch (error: any) {
       res.status(403).json({ success: false, message: error.message });
     }
@@ -59,11 +51,11 @@ export class AdminController implements IAdminInterface {
     next: NextFunction
   ): Promise<void | Response> {
     try {
-      const search = req.query.search as string
-      const page = parseInt(req.query.page as string) || 1
-      const limit = parseInt(req.query.limit as string) || 5
-      const users = await this.userService.getAllUsers(search,page,limit);
-      console.log(users,'fdd')
+      const search = req.query.search as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const users = await this.userService.getAllUsers(search, page, limit);
+      console.log(users, "fdd");
       res.status(201).json({ success: true, ...users });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
@@ -210,10 +202,10 @@ export class AdminController implements IAdminInterface {
     next: NextFunction
   ): Promise<void | Response> {
     try {
-      const search = req.query.search as string
-      const page = parseInt(req.query.page as string) || 1
-      const limit = parseInt(req.query.limit as string) || 5
-      const doctor = await this.adminService.getAllDoctors(search,page,limit);
+      const search = req.query.search as string;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
+      const doctor = await this.adminService.getAllDoctors(search, page, limit);
       console.log("doctors", doctor);
       res.status(200).json({ success: true, ...doctor });
     } catch (error) {
@@ -260,12 +252,10 @@ export class AdminController implements IAdminInterface {
           .json({ success: false, message: "doctorId is required" });
       }
       if (!isActive) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "approval or rejection is required",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "approval or rejection is required",
+        });
       }
 
       const approved = await this.adminService.approveDoctor(
@@ -282,14 +272,12 @@ export class AdminController implements IAdminInterface {
         await this.adminService.rejectedDoctors(doctorId);
       }
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message:
-            isActive === "approved" ? "Doctor approved" : "Doctor rejected",
-          data: { isActive, doctorId },
-        });
+      res.status(200).json({
+        success: true,
+        message:
+          isActive === "approved" ? "Doctor approved" : "Doctor rejected",
+        data: { isActive, doctorId },
+      });
     } catch (error: any) {
       return res.status(500).json({ success: false, message: error.message });
     }
@@ -377,67 +365,118 @@ export class AdminController implements IAdminInterface {
       const isBlocked = !doctor?.isBlocked; // ppo ith false aan ppo oru vattam nekkkiyal ith true aavum pne nekkiyaal false angane
       await this.adminService.blockAndUnblockDoctor(doctorId, isBlocked); //puthya statusine update cheyyan venditt databasil servicine vilikum
 
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: isBlocked
-            ? "Doctor blocked successfully"
-            : "Doctor unblocked successfully",
-        });
+      return res.status(200).json({
+        success: true,
+        message: isBlocked
+          ? "Doctor blocked successfully"
+          : "Doctor unblocked successfully",
+      });
     } catch (error) {
       next(error);
     }
   }
 
-  async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+  async refreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void | Response> {
     try {
-      const refreshToken = req.cookies.adminRefreshToken
-      console.log(refreshToken,'hylo')
-      if(!refreshToken){
-        console.log("not token")
-        res.status(404).json({success:false,message:"token not found"})
+      const refreshToken = req.cookies.adminRefreshToken;
+      console.log(refreshToken, "hylo");
+      if (!refreshToken) {
+        console.log("not token");
+        res.status(404).json({ success: false, message: "token not found" });
       }
-      const decoded = jwt.verify(refreshToken,REFRESH_TOKEN_SECRET) as JwtPayload
-      const{userId,role} = decoded
-      const newAdminAccessToken = jwt.sign({userId,role},ACCESS_TOKEN_SECRET,{expiresIn:"4d"})
-      res.status(200).json({success:true,adminAccessToken:newAdminAccessToken})
+      const decoded = jwt.verify(
+        refreshToken,
+        REFRESH_TOKEN_SECRET
+      ) as JwtPayload;
+      const { userId, role } = decoded;
+      const newAdminAccessToken = jwt.sign(
+        { userId, role },
+        ACCESS_TOKEN_SECRET,
+        { expiresIn: "4d" }
+      );
+      res
+        .status(200)
+        .json({ success: true, adminAccessToken: newAdminAccessToken });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   //logout
 
-
-  async fetchDoctorAppointment(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+  async fetchDoctorAppointment(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void | Response> {
     try {
-        const doctorAppointment = await this.adminService.fetchDoctorAppointment()
-        console.log(doctorAppointment,'dr')
-          if(!doctorAppointment){
-            res.status(404).json({success:false,message:"No Appointments found"})
-            return
-          }
-           res.status(200).json({success:true,message:"Appointments fetched successfully",doctorAppointment})
-           return
-    } catch (error:any) {
-      console.log(error.message)
-      res.status(500).json({success:false,message:error.message})
-      return
+      const doctorAppointment =
+        await this.adminService.fetchDoctorAppointment();
+      console.log(doctorAppointment, "dr");
+      if (!doctorAppointment) {
+        res
+          .status(404)
+          .json({ success: false, message: "No Appointments found" });
+        return;
+      }
+      res
+        .status(200)
+        .json({
+          success: true,
+          message: "Appointments fetched successfully",
+          doctorAppointment,
+        });
+      return;
+    } catch (error: any) {
+      console.log(error.message);
+      res.status(500).json({ success: false, message: error.message });
+      return;
     }
   }
 
-  async filterSlots(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+  async filterSlots(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void | Response> {
     try {
-        const{slotDate,doctorId} = req.query
-        if(!slotDate){
-            return res.status(401).json({success:false,message:"Date is required"})
-        }
-        const filteredSlots = await this.adminService.filterSlots(slotDate as string,doctorId as string)
-        return res.status(200).json({success:true,message:"slot filteration success",filteredSlots})
-    } catch (error:any) {
-        console.log(error.message)
+      const { slotDate, doctorId } = req.query;
+      if (!slotDate) {
+        return res
+          .status(401)
+          .json({ success: false, message: "Date is required" });
+      }
+      const filteredSlots = await this.adminService.filterSlots(
+        slotDate as string,
+        doctorId as string
+      );
+      return res
+        .status(200)
+        .json({
+          success: true,
+          message: "slot filteration success",
+          filteredSlots,
+        });
+    } catch (error: any) {
+      console.log(error.message);
     }
-}
+  }
 
+  async fetchDoctorReviews(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const {doctorId} = req.params
+      if(!doctorId){
+          return res.status(400).json({success:false,message:"doctor is required"})
+      }
+      const result = await this.adminService.fetchDoctorReviews(doctorId)
+      return res.status(200).json({success:true,message:"fetched the reviews",result})
+    } catch (error:any) {
+      console.log(error.message)
+      return res.status(500).json({success:false,message:error.message})
+    }
+  }
 }
