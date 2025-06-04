@@ -34,10 +34,7 @@ export const googleSignIn = async(idToken:string)=>{
             console.log('signUp failed',response)
         }
         const data = await response.json()
-        // const {token:accessToken,user} = data
-        // // console.log("recieved token",accessToken)
-        // // localStorage.setItem("token",accessToken)
-        // localStorage.setItem("user",JSON.stringify(user))
+       
         return data
     } catch (error:any) {
         console.log('error',error.message)
@@ -205,6 +202,50 @@ export const capturePaypalOrder = async (orderID: string) => {
   export const fetchDoctorReview = async(doctorId:string)=>{
     try {
         const response = await api.get(userEndpoints.FETCH_DOCTOR_REVIEW(doctorId))
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+  }
+
+  export const editReviewAndRating = async(reviewId:string,review:string,rating:number)=>{
+    try {
+        const response  = await api.patch(userEndpoints.EDIT_REVIEW_AND_RATING(reviewId),{
+            review,rating
+        })
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+  }
+
+  export const getOrCreateRoom = async(userId:string,doctorId:string)=>{
+    try {
+        const response = await api.post(userEndpoints.GET_OR_CREATE_ROOM,{userId,doctorId})
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+  }
+
+  export const getMessages = async(roomId:string)=>{
+    try {
+        const response = await api.get(userEndpoints.GET_MESSAGES(roomId))
+        return response.data
+    } catch (error:any) {
+        console.log(error.message)
+    }
+  }
+
+  export const sendMessage = async(roomId:string,userId:string,doctorId:string,chats:string,image?:string)=>{
+    try {
+        const response = await api.post(userEndpoints.SEND_MESSAGE,{
+            roomId,
+            userId,
+            doctorId,
+            chats,
+            image
+        })
         return response.data
     } catch (error:any) {
         console.log(error.message)

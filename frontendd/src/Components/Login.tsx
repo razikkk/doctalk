@@ -8,6 +8,8 @@ import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import API from "../utils/api";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -30,8 +32,7 @@ const SignIn = () => {
           // }
           //   localStorage.setItem("accessToken", response.accessToken);
           //   localStorage.setItem("userId", response.user._id); 
-          //   localStorage.setItem("role", response.user.role); 
-
+          await signInWithEmailAndPassword(auth, email, password);
             dispatch(
                 login({
                     token:response.accessToken,

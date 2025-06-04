@@ -84,4 +84,8 @@ export interface IUserController {
   findDoctorBySpecialization(req:Request,res:Response,next:NextFunction):Promise<void | Response>
   postReviewAndRating(req:Request,res:Response,next:NextFunction):Promise<void | Response>
   fetchDoctorReview(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  editReviewAndRating(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  getOrCreateRoom(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  sendMessage(req:Request,res:Response,next:NextFunction):Promise<void | Response>
+  getMessages(req:Request,res:Response,next:NextFunction):Promise<void | Response>
 }

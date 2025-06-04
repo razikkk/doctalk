@@ -6,6 +6,9 @@ import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { Toaster,toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { login } from "../../Redux/userSlice/userAuthSlice";
+import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithCredential } from "firebase/auth";
+import { auth, db } from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -71,6 +74,22 @@ const Register = () => {
         localStorage.setItem("email", response.result?.user?.email);
 
         sessionStorage.setItem("newUser","true") // for resend otp to reset the timer
+        console.log(response.result.user,'dd')
+        const userId = response.result.user._id || response.result.user.uid || response.result.user.id
+        if(!userId){
+          throw new Error("User ID is missing in response.");
+        }
+        const firebaseUser = await createUserWithEmailAndPassword(auth, email, password);
+
+       
+        await setDoc(doc(db, "users", firebaseUser.user.uid), {
+          name: response.result.user.name,
+          email: response.result.user.email,
+          role: "user",
+          mongoId:response.result.user._id,
+          createdAt: new Date()
+        });
+      console.log('done')
         setLoading(false);
         toast.info("please Enter otp",{duration:1000})
         setTimeout(() => navigate("/verify-otp"), 2000);
@@ -85,12 +104,29 @@ const Register = () => {
   };
 
   const handleGoogleLogin = async(credentialResponse:CredentialResponse)=>{
-    console.log('fddsa')
+    console.log(credentialResponse.clientId,'clie')
     try {
       if(credentialResponse.credential){
         const userData = await googleSignIn(credentialResponse.credential)
+        console.log(userData,'use')
+        const firebaseCredential = GoogleAuthProvider.credential(credentialResponse.credential)
+        const firebaseUser = await signInWithCredential(auth,firebaseCredential)
+        const mongoId = userData?.user?._id
+
+        if (!mongoId) {
+          throw new Error("MongoDB ID not returned from backend.");
+        }
+        await setDoc(doc(db,"users",firebaseUser.user.uid),{
+            name:firebaseUser.user.displayName,
+            email:firebaseUser.user.email,
+            role:"user",
+            mongoId,
+            createdAt: new Date()
+        })
+        
         console.log(userData,'dt')
         if(userData && userData.token && userData.user){
+
           dispatch(
             login({
               token: userData.token,

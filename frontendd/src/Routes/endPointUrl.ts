@@ -15,7 +15,11 @@ export const userEndpoints = {
   FETCH_DOCTOR_PROFILE:(doctorId:string)=>`/doctor/${doctorId}`,
   FETCH_DOCTOR_BY_SPECIALIZATION:(specializationId:string)=>`/doctor/specialization/${specializationId}`,
   POST_REVIEW_RATING:`/review-rating`,
-  FETCH_DOCTOR_REVIEW:(doctorId:string)=>`/reviews/${doctorId}`
+  FETCH_DOCTOR_REVIEW:(doctorId:string)=>`/reviews/${doctorId}`,
+  EDIT_REVIEW_AND_RATING:(reviewId:string)=>`/review/${reviewId}`,
+  GET_OR_CREATE_ROOM:'/chat/room',
+  GET_MESSAGES:(roomId:string)=>`/chat/messages/${roomId}`,
+  SEND_MESSAGE:'/chat/message'
 };
 
 export const doctorEndpoints = {

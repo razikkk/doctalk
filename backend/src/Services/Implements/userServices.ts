@@ -25,6 +25,9 @@ import { IPaymentRepository } from "../../Repositories/interface/IPayment";
 import payPalClient from "../../utils/paypalClient";
 import { IReviewRating, ReviewRating } from "../../Models/RevieRating";
 import { IReviewRatingRepository } from "../../Repositories/interface/IReviewRating";
+import { IRoom } from "../../Models/ChatRoom";
+import { IChatRepository } from "../../Repositories/interface/IChatRepository";
+import { IChat } from "../../Models/ChatSchema";
 dotenv.config();
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN || "razik3407";
@@ -33,17 +36,20 @@ export class userService implements IUserService {
   private userRepository: IUserRepository;
   private appointmentRepository: IAppointmentRepository;
   private payementRepository: IPaymentRepository;
-  private reviewRatingRepository : IReviewRatingRepository
+  private reviewRatingRepository : IReviewRatingRepository;
+  private chatRepository : IChatRepository
   constructor(
     userRepository: IUserRepository,
     appointmentRepository: IAppointmentRepository,
     payementRepository: IPaymentRepository,
-    reviewRatingRepository: IReviewRatingRepository
+    reviewRatingRepository: IReviewRatingRepository,
+    chatRepository : IChatRepository
   ) {
     this.userRepository = userRepository;
     this.appointmentRepository = appointmentRepository;
     this.payementRepository = payementRepository;
     this.reviewRatingRepository = reviewRatingRepository
+    this.chatRepository = chatRepository
   }
   async register(
     name: string,
@@ -68,7 +74,11 @@ export class userService implements IUserService {
     }); // ppo ith db kerii adyathe value key aayittum next value aayittum keri
     return {
       message: "user registered successfully",
-      user: { name, email, role: "user" },
+      user: {  _id: newUser._id, 
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role
+    },
     }; // ee message nmml controllerk ayakkum
   }
 
@@ -279,6 +289,18 @@ export class userService implements IUserService {
     return await this.reviewRatingRepository.postReviewAndRating(data)
   }
   async fetchDoctorReview(doctorId: string): Promise<IReviewRating[]> {
-    return ReviewRating.find({doctorId:doctorId}).populate('userId')
+    return this.reviewRatingRepository.fetchReviewPerDoctor(doctorId)
+  }
+  async editReviewAndRating(reviewId: string,review:string,rating:number): Promise<IReviewRating | null> {
+    return await this.reviewRatingRepository.editReviewAndRating(reviewId,review,rating)
+  }
+  async getOrCreateRoom(userId: string, doctorId: string): Promise<IRoom> {
+    return await this.chatRepository.getOrCreateRoom(userId,doctorId)
+  }
+  async sendMessage(data: { roomId: string; userId: string; doctorId: string; chats?: string | undefined; image?: string | undefined; }): Promise<IChat> {
+    return await this.chatRepository.saveMessages(data)
+  }
+  async getMessages(roomId: string): Promise<IChat[]> {
+    return await this.chatRepository.getMessagesByRoom(roomId)
   }
 }

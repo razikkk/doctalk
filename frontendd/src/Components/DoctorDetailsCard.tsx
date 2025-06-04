@@ -32,6 +32,7 @@ const DoctorCardDetails: React.FC<DoctorCardProps> = ({ doctor }) => {
       src={doctor.imageUrl} 
       alt='' 
       className="w-[100px] h-[100px] object-cover rounded-full border-4 border-gray-200 mx-auto"
+      onClick={()=>navigate(`/doctor/${doctor._id}`)}
     />
     
   </div>

@@ -1,6 +1,6 @@
 // components/AddSlotModal.jsx
 import React, { useEffect, useState } from 'react';
-import { addSlots } from '../utils/doctorAuth';
+import { addSlots, getAllAppointments } from '../utils/doctorAuth';
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/store';
 
@@ -32,6 +32,8 @@ const AddSlotModal:React.FC<ModalProps> = ({ isOpen, onClose }) => {
         ...newSlot,
         doctorId
     }
+    const [existingSlots, setExistingSlots] = useState<ISlot[]>([]);
+
     const [error,setError] = useState({
       date:'',
       startTimeAndEndTime:'',
@@ -39,7 +41,28 @@ const AddSlotModal:React.FC<ModalProps> = ({ isOpen, onClose }) => {
       consultaionFees:''
     })
   
-
+    useEffect(() => {
+      if (isOpen && doctorId && newSlot &&  newSlot.days) {
+        const fetchSlots = async () => {
+          try {
+            const response = await getAllAppointments(doctorId);
+            // Make sure slots is an array
+            if (response.success && Array.isArray(response.result)) {
+              const extractSlots = response.result.map(item=>item.slotId)
+              setExistingSlots(extractSlots);
+            } else {
+              console.error("Fetched slots is not an array", response);
+              setExistingSlots([]); // fallback to empty array
+            }
+          } catch (err) {
+            console.error("Failed to fetch slots", err);
+            setExistingSlots([]); // fallback to empty array
+          }
+        };
+    
+        fetchSlots();
+      }
+    }, [isOpen, doctorId, newSlot]);
 
 
   // Update formatted date and day of week whenever days changes
@@ -59,6 +82,10 @@ const AddSlotModal:React.FC<ModalProps> = ({ isOpen, onClose }) => {
     }
   }, [newSlot?.days]);
 
+  function timeToMinutes(t){
+    const [h,m] = t.split(":").map(Number)
+    return h * 60 + m
+  } 
 
   const addSlot = async(e:React.FormEvent)=>{
     console.log('dd')
@@ -117,9 +144,29 @@ const AddSlotModal:React.FC<ModalProps> = ({ isOpen, onClose }) => {
       }))
       return
     }
+    const newStart = timeToMinutes(newSlot.startTime);
+    const newEnd = timeToMinutes(newSlot.endTime);
+    
+    // Check for overlapping slots
+    const overlap = existingSlots.some(slot => {
+      const existingStart = timeToMinutes(slot.startTime);
+      const existingEnd = timeToMinutes(slot.endTime);
+  
+      // Overlap condition
+      return newStart < existingEnd && existingStart < newEnd;
+    });
+  
+    if (overlap) {
+      setError(prev => ({
+        ...prev,
+        startTimeAndEndTime: "This time slot overlaps with an existing slot."
+      }));
+      return;
+    }
     try {
         const response = await addSlots(slotWithDoctorId)
         if(response && response.success){
+         
             setNewSlot(response.Slot)
             onClose()
         }

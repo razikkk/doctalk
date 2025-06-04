@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Camera, Mail, MapPin, Phone } from 'lucide-react';
+import { Camera, Edit, Mail, MapPin, Phone } from 'lucide-react';
 import { fetchDoctorProfile, fetchDoctorReview } from '../../utils/auth';
 import { LiaTransgenderSolid } from "react-icons/lia";
 import ReviewRating from '../../Components/ReviewRating';
 import { MdReviews } from "react-icons/md";
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import EditReviewRating from '../../Components/EditReviewModal';
 
 interface IDoctor {
+    _id:string
     name: string,
     specialization: {
         name: string
@@ -21,14 +23,21 @@ interface IReview {
     rating: number;
     review: string;
     createdAt: string;
+    userId:{
+        _id:string
+    }
 }
 
 const UserDoctorProfile = () => {
     const [doctor, setDoctor] = useState<IDoctor | null>()
     const [reviews, setReviews] = useState<IReview[]>([])
-    // const doctorId = localStorage.getItem('doctorId') 
+    const userId = localStorage.getItem('userId') 
+    console.log(userId,'iinlocal')
     const [reviewModal, setReviewModal] = useState(false)
+    const [editReviewModal,setEditReviewModal] = useState(false)
+    const [selectedReview,setSelectedReview] = useState(null)
     const {doctorId} = useParams()
+    const navigate = useNavigate()
 
     useEffect(() => {
         const DoctorProfile = async() => {
@@ -45,6 +54,7 @@ const UserDoctorProfile = () => {
         const fetchedReview = async()=>{
             try {
                 const response = await fetchDoctorReview(doctorId as string)
+                console.log(response.result,'usee in response')
                 if(response.success){
                     setReviews(response.result)
                 }
@@ -55,17 +65,21 @@ const UserDoctorProfile = () => {
         fetchedReview()
     },[doctorId])
 
-    const handleSubmitReview = (data: { rating: number; review: string }) => {
-        const newReview = {
-            ...data,
-            createdAt: new Date().toISOString()
-        };
-        setReviews([newReview, ...reviews]);
-        setReviewModal(false);
-    };
 
     return (
         <div className="max-w-5xl mx-auto">
+            {doctor && (
+  <button
+  onClick={() => {
+    console.log(doctor._id,'dd')
+    navigate(`/user/message/${doctor._id}`);
+  }}
+>
+  Chat
+</button>
+)}
+           
+
             <h1 className="text-2xl font-bold mb-6">Profile</h1>
             
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -134,28 +148,41 @@ const UserDoctorProfile = () => {
                         </div>
                         
                         <div className="space-y-4">
-                            {reviews.length > 0 ? (
-                                reviews.map((review, index) => (
-                                    <div key={index} className="bg-gray-50 rounded-lg p-4">
-                                        <div className="flex items-center gap-1 mb-2">
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-gray-300'}>
-                                                    ★
-                                                </span>
-                                            ))}
-                                            <span className="ml-2 text-sm text-gray-500">
-                                                {new Date(review.createdAt).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                        <p className="text-gray-700">{review.review}</p>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-8 text-gray-500">
-                                    No reviews yet
-                                </div>
-                            )}
-                        </div>
+  {reviews.length > 0 ? (
+    reviews.map((review, index) => (
+      <div key={index} className="bg-gray-50 rounded-lg p-4">
+        {/* Top row: stars + date + edit icon */}
+        <div className="flex justify-between items-start mb-2">
+          <div className="flex items-center gap-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-gray-300'}>
+                ★
+              </span>
+            ))}
+            <span className="ml-2 text-sm text-gray-500">
+              {new Date(review.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+
+          {review.userId._id === userId && (
+            <Edit
+              size={20}
+              className="text-[#157B7B] cursor-pointer"
+              onClick={()=>{console.log('clci'); setEditReviewModal(true); setSelectedReview(review);}}
+              
+            />
+          )}
+        </div>
+
+        <p className="text-gray-700">{review.review}</p>
+      </div>
+    ))
+  ) : (
+    <div className="text-center py-8 text-gray-500">
+      No reviews yet
+    </div>
+  )}
+</div>
                     </div>
                 </div>
             </div>
@@ -169,10 +196,26 @@ const UserDoctorProfile = () => {
                         >
                             ✕
                         </button>
-                        <ReviewRating onSubmit={handleSubmitReview} onClose={() => setReviewModal(false)} />
+                        <ReviewRating onClose={() => setReviewModal(false)} />
                     </div>
                 </div>
             )}
+            {
+                editReviewModal && selectedReview && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-brightness-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-lg relative">
+                        <button
+                            onClick={() => setEditReviewModal(false)}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                        >
+                            ✕
+                        </button>
+                        <EditReviewRating reviews={selectedReview} onClose={()=>setEditReviewModal(false)}/>
+                      
+                    </div>
+                </div>
+                )
+            }
         </div>
     );
 }

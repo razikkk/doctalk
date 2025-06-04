@@ -6,6 +6,10 @@ import { Toaster,toast } from 'sonner';
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../Redux/doctorSlice/doctorSlice';
+import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithCredential } from "firebase/auth";
+import { auth, db } from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
+
 const DoctorRegister = () => {
     const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -71,6 +75,7 @@ const DoctorRegister = () => {
 
         setLoading(false)
         console.log(response,"respoe")
+        
         if(response.success && response.result?.doctor?.email){
             const doctorData = {
                 email: response.result?.doctor?.email,
@@ -82,6 +87,20 @@ const DoctorRegister = () => {
             localStorage.setItem("doctor", JSON.stringify(doctorData));
 
             sessionStorage.setItem("newDoctor","true")
+            
+            const doctorId = response.result.doctor._id || response.result.doctor.uid || response.result.doctor.id
+            if(!doctorId){
+              throw new Error("doctor ID is missing in response.");
+            }
+            const firebaseUser = await createUserWithEmailAndPassword(auth, email, password);
+            await setDoc(doc(db,"doctors",firebaseUser.user.uid),{
+              name:response.result.doctor.name,
+              email:response.result.doctor.email,
+              role:"doctor",
+              mongoId:response.result.doctor._id,
+              createdAt: new Date()
+          })
+
             setLoading(false)
             toast.info("please Enter the Otp",{duration:1000})            
             setTimeout(()=>navigate('/doctor/otp'),2000)
@@ -103,6 +122,19 @@ const DoctorRegister = () => {
     try {
       if(credentialResponse.credential){
         const doctorData = await googleLogin(credentialResponse.credential,'register')
+
+        const firebaseCredential = GoogleAuthProvider.credential(credentialResponse.credential)
+        const firebaseUser = await signInWithCredential(auth,firebaseCredential)
+
+               
+
+        await setDoc(doc(db,"doctors",firebaseUser.user.uid),{
+          name:firebaseUser.user.displayName,
+          email:firebaseUser.user.email,
+          role:"doctor",
+          mongoId : doctorData?.doctor?._id,
+          createdAt: new Date()
+      })
         console.log(doctorData)
         if(doctorData && doctorData.token && doctorData.doctor){
           dispatch(loginSuccess({

@@ -10,4 +10,7 @@ export class RevieRatingRepository implements IReviewRatingRepository{
     async fetchReviewPerDoctor(doctorId: string): Promise<IReviewRating[]> {
         return await ReviewRating.find({doctorId:doctorId}).populate('userId')
     }
+    async editReviewAndRating(reviewId: string,review:string,rating:number): Promise<IReviewRating | null> {
+        return await ReviewRating.findByIdAndUpdate(reviewId,{review,rating},{new:true})
+    }
 }

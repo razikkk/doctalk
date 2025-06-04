@@ -152,7 +152,7 @@ export class UserController implements IUserController {
       const token = await generateAccessToken(user._id.toString(), user.role);
       res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
       res.setHeader("Access-Control-Allow-Credentials", "true");
-      console.log(user, "back");
+
       res.status(200).json({ message: "success", token, user });
     } catch (error: any) {
       console.log(error.message);
@@ -179,7 +179,7 @@ export class UserController implements IUserController {
         refreshToken,
         isBlocked,
       });
-      console.log(refreshToken);
+
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
     }
@@ -193,7 +193,7 @@ export class UserController implements IUserController {
     try {
       const refreshToken = req.cookies.refreshToken;
       if (!refreshToken) {
-        console.log("nonoo");
+
         res.status(404).json({ success: false, message: "No token" });
         return;
       }
@@ -201,13 +201,13 @@ export class UserController implements IUserController {
         refreshToken,
         REFRESH_TOKEN_SECRET
       ) as JwtPayload;
-      console.log(decoded);
+
       const { userId, role } = decoded;
-      console.log(userId, role);
+
       const newAccessToken = jwt.sign({ userId, role }, ACCESS_TOKEN_SECRET, {
         expiresIn: "3d",
       });
-      console.log(newAccessToken, "aa");
+
       return res
         .status(200)
         .json({ success: true, accessToken: newAccessToken });
@@ -252,14 +252,14 @@ export class UserController implements IUserController {
   ): Promise<void | Response> {
     try {
       res.clearCookie("accessToken");
-      console.log("clerared");
+
       res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: false,
         sameSite: "lax",
         path: "/",
       });
-      console.log("done");
+
 
       res.status(200).json({ success: true, message: "Logout successfull" });
       return;
@@ -280,7 +280,6 @@ export class UserController implements IUserController {
           .status(400)
           .json({ success: false, message: "specialization data is required" });
       }
-      console.log(specializationData, "spec");
       return res
         .status(200)
         .json({
@@ -305,7 +304,6 @@ export class UserController implements IUserController {
           .status(400)
           .json({ success: false, messsage: "can't fetch appointment data" });
       }
-      console.log(appointmentData, "data");
       return res
         .status(200)
         .json({
@@ -359,13 +357,9 @@ export class UserController implements IUserController {
       );
 
       const user = await this.userService.getUserById(userId);
-      console.log(user, "usertalk");
       const doctor = await this.adminService.getDoctorById(doctorId);
       if (!user?.email || !doctor?.email) {
-        console.log("Missing email", {
-          userEmail: user?.email,
-          doctorEmail: doctor?.email,
-        });
+
         return res
           .status(500)
           .json({ success: false, message: "Missing user or doctor email" });
@@ -382,7 +376,7 @@ export class UserController implements IUserController {
         subject: userEmail.subject,
         text: userEmail.text,
       });
-      console.log("done email");
+   
 
       await transporter.sendMail({
         from: process.env.EMAIL,
@@ -540,6 +534,52 @@ export class UserController implements IUserController {
     } catch (error:any) {
       console.log(error.message)
       return res.status(500).json({success:false,message:error.message})
+    }
+  }
+  async editReviewAndRating(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const {reviewId} = req.params
+      const {review,rating} = req.body
+      if(!reviewId){
+        return res.status(400).json({success:false,message:"reviewId is required"})
+      }
+      const result = await this.userService.editReviewAndRating(reviewId,review,rating)
+      return res.status(200).json({success:true,message:"review edited",result})
+    } catch (error:any) {
+      console.log(error.message)
+      return res.status(500).json({success:false,message:error.message})
+    }
+  }
+  async getOrCreateRoom(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const {userId,doctorId} = req.body
+      console.log(userId,doctorId,'from forn')
+      const room = await this.userService.getOrCreateRoom(userId,doctorId)
+      return res.status(200).json({success:true,message:"room created",room})
+    } catch (error:any) {
+      console.group(error.message)
+      return res.status(500).json({success:false,message:error.message})
+    }
+  }
+  async sendMessage(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const {roomId,userId,doctorId,chats,image} = req.body
+      const messageData = {roomId,userId,doctorId,chats,image} 
+      const sendMessage = await this.userService.sendMessage(messageData)
+      return res.status(200).json({success:true,message:"messaage saved",sendMessage})
+    } catch (error:any) {
+      console.log(error.messaage)
+      return res.status(500).json({success:false,message:error.messaage})
+    }
+  }
+  async getMessages(req: Request, res: Response, next: NextFunction): Promise<void | Response> {
+    try {
+      const {roomId} = req.params
+      const messages = await this.userService.getMessages(roomId)
+      return res.status(200).json({success:true,message:"fetched messages",messages})
+    } catch (error:any) {
+      console.log(error.message)
+      return res.status(500).json({success:false,messsage:error.message})
     }
   }
 }

@@ -1,3 +1,5 @@
+import { IRoom } from "../../Models/ChatRoom";
+import { IChat } from "../../Models/ChatSchema";
 import { IReviewRating } from "../../Models/RevieRating";
 import { IAppointment } from "../../Models/appointmentModel";
 import { IDoctor } from "../../Models/doctorModel";
@@ -66,5 +68,12 @@ export interface IUserService {
   findDoctorBySpecialization(specializationId:string):Promise<IDoctor[]>
   postReviewAndRating(data:IReviewRatingInput):Promise<IReviewRating | null>
   fetchDoctorReview(doctorId:string):Promise<IReviewRating[]>
-
+  editReviewAndRating(reviewId:string,review:string,rating:number):Promise<IReviewRating | null>
+  getOrCreateRoom(userId:string,doctorId:string):Promise<IRoom>
+  sendMessage(data:{ roomId: string;
+    userId: string;
+    doctorId: string;
+    chats?: string;
+    image?: string;}):Promise<IChat>
+    getMessages(roomId:string):Promise<IChat[]>
 }

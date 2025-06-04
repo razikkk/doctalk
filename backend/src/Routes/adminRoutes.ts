@@ -11,6 +11,7 @@ import limitter from '../middleware/RateLimitter'
 import { appointemntRepository } from '../Repositories/implements/appointment'
 import { paymentRepository } from '../Repositories/implements/paymentRepository'
 import { RevieRatingRepository } from '../Repositories/implements/ReviewRating'
+import { ChatRepository } from '../Repositories/implements/chatRepository'
 
 const router = express.Router()
 const UserRepository = new userRepository()
@@ -18,7 +19,8 @@ const adminRepository = new AdminRepository()
 const AppointemntRepository = new appointemntRepository()
 const PaymentRepository = new paymentRepository()
 const reviewRatingRepository = new RevieRatingRepository()
-const UserService = new userService(UserRepository,AppointemntRepository,PaymentRepository,reviewRatingRepository) 
+const chatRepository = new ChatRepository()
+const UserService = new userService(UserRepository,AppointemntRepository,PaymentRepository,reviewRatingRepository,chatRepository) 
 const adminService = new AdminService(adminRepository,reviewRatingRepository)
 const adminController = new AdminController(UserService,adminService)
 
@@ -47,7 +49,7 @@ const getSpecialisationById = adminController.getSpecialisationById.bind(adminCo
 router.get('/specialities/:id',verifyToken,authorizeRole(['admin']),getSpecialisationById)
 
 const getActiveSpecialites = adminController.getActiveSpecialites.bind(adminController) as RequestHandler
-router.get('/active-specialities',verifyToken,authorizeRole(['admin']),getActiveSpecialites)
+router.get('/active-specialities',getActiveSpecialites)
 
 const getAllDoctors = adminController.getAllDoctors.bind(adminController) as RequestHandler
 router.get('/doctors',verifyToken,authorizeRole(['admin']),getAllDoctors)

@@ -38,6 +38,10 @@ import UserDoctorProfile from './Pages/user/DoctorProfile'
 import DoctorAppointments from './Pages/doctor/Appointments'
 import DoctorPerSpecialization from './Pages/user/DoctorPerSpecialization'
 import VideoCall from './Components/VideoCall'
+import Chat from './Components/Chat'
+import MessagesPage from './Components/MessagePage'
+import DoctorMessages from './Pages/doctor/DoctorMessagePage'
+import UserMessages from './Pages/user/UserMessagePage'
 function App() {
   
 
@@ -66,7 +70,10 @@ function App() {
       <Route path='/user/profile' element={<Profile/>}/>
       <Route path='/user/appointments' element={<UserAppointments/>}/>
       <Route path='/doctor/:doctorId' element={<UserDoctorProfile/>}/>
-      
+      <Route path="/user/message/:doctorId" element={<UserMessages />} />
+      <Route path="/user/message/:doctorId?" element={<UserMessages />} />
+
+
       </Route>
       
       </Route>
@@ -106,6 +113,9 @@ function App() {
       <Route path='/doctor/appointments' element={<AppointmentsDetails/>}/>
       <Route path='/doctor/all-appointments' element={<DoctorAppointments/>}/>
       <Route path='/doctor/appointment/video-call/:appointmentId' element={<VideoCall/>}/>
+      <Route path='/doctor/message' element={<DoctorMessages />} />
+        <Route path="/doctor/message/:userId" element={<DoctorMessages/>}/>
+
         </Route>
 
       </Route>

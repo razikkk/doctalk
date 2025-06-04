@@ -58,7 +58,7 @@ const editDoctorProfile = doctorController.editDoctorProfile.bind(doctorControll
 router.patch('/profile/editProfile/:doctorId',uploads.fields([{name:"imageUrl",maxCount:1},{name:"identityProofUrl",maxCount:1},{name:"medicalCertificateUrl",maxCount:1}]),verifyToken,editDoctorProfile)
 
 const getAllSpecialities = doctorController.getAllSpecialities.bind(doctorController) as RequestHandler
-router.get('/get-all-specialities',verifyToken,getAllSpecialities)
+router.get('/get-all-specialities',getAllSpecialities)
 
 const fetchDoctorAppointment = doctorController.fetchDoctorAppointment.bind(doctorController) as RequestHandler
 router.get('/appointments',verifyToken,fetchDoctorAppointment)

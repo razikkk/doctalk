@@ -10,6 +10,7 @@ import { paymentRepository } from "../Repositories/implements/paymentRepository"
 import { AdminService } from "../Services/Implements/adminService";
 import { AdminRepository } from "../Repositories/implements/adminRepository";
 import { RevieRatingRepository } from "../Repositories/implements/ReviewRating";
+import { ChatRepository } from "../Repositories/implements/chatRepository";
 
 const router = express.Router()
 
@@ -18,7 +19,8 @@ const AppointemntRepository = new appointemntRepository()
 const PayementRepository = new paymentRepository()
 const adminRepository = new AdminRepository()
 const reviewRatingRepository = new RevieRatingRepository()
-const UserService = new userService(UserRepository,AppointemntRepository,PayementRepository,reviewRatingRepository)
+const chatRepository = new ChatRepository()
+const UserService = new userService(UserRepository,AppointemntRepository,PayementRepository,reviewRatingRepository,chatRepository)
 const adminService = new AdminService(adminRepository,reviewRatingRepository)
 const userController = new UserController(UserService,adminService)
 
@@ -74,4 +76,15 @@ router.post('/review-rating',postReviewAndRating)
 const fetchDoctorReview = userController.fetchDoctorReview.bind(userController) as RequestHandler
 router.get('/reviews/:doctorId',fetchDoctorReview)
 
+const editReviewAndRating =  userController.editReviewAndRating.bind(userController) as RequestHandler
+router.patch('/review/:reviewId',editReviewAndRating)
+
+const getOrCreateRoom = userController.getOrCreateRoom.bind(userController) as RequestHandler
+router.post('/chat/room',getOrCreateRoom)
+
+const getMessages = userController.getMessages.bind(userController) as RequestHandler
+router.get('/chat/messages/:roomId',getMessages)
+
+const sendMessage = userController.sendMessage.bind(userController) as RequestHandler
+router.post('/chat/message',sendMessage)
 export default router
